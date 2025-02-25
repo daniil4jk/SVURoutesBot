@@ -1,0 +1,32 @@
+bot:
+  bot-username: SVURoutesBot
+  token: 7957004443:AAHt4zqPogZ68qryGUrQfXWDdWDhesn3K1c
+  admin-chat-id: 5349292657
+  review-chat-id: -1002474257384
+  suggestion-chat-id: -1002288022713
+  split-dot-messages: false
+content:
+  filename:
+    messages: messages.json
+    routes: routes.json
+    dots: dots.json
+keyboard:
+  max-buttons-in-row: 1
+spring:
+  application:
+    name: SVURoutesBot
+  output:
+    ansi:
+      enabled: always
+  datasource:
+    url: jdbc:h2:/data/svuroutes/svuroutes-database
+    username: SVURoutesBot
+    password: es2ec4xdCmJx67brg
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
