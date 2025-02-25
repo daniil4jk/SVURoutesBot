@@ -30,11 +30,9 @@ public class DotCmd extends ServiceIntegratedBotCommand {
 
     private static final String[] linkForFormat = new String[]
             {
-                    "<a href=\"" +
-                    "https://yandex.ru/maps/20672/severouralsk/?l=sat%2Cskl&ll=",
+                    "<a href=\"" + "https://yandex.ru/maps/20672/severouralsk/?l=sat%2Cskl&ll=",
                     "%2C",
-                    "&mode=usermaps&source=constructorLink&um=constructor%" + yaMapId + "&z=19" +
-                            "\">тык</a>"
+                    "&mode=usermaps&source=constructorLink&um=constructor%" + yaMapId + "&z=19" + "\">клик</a>"
             };
 
     public DotCmd() {
@@ -57,7 +55,7 @@ public class DotCmd extends ServiceIntegratedBotCommand {
         try {
             var dot = dotMap.get(Long.parseLong(strings[0]));
             if (dot == null) throw new NoSuchElementException();
-            String[] textParts = getBotConfig().isSplitDotText() ?
+            String[] textParts = getMessageConfig().isSplitDotText() ?
                     splitText(getText(dot)) : nonSplitText(getText(dot));
 
             if (dot.getMediaGroup().isPresent() &&

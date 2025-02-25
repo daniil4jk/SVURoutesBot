@@ -101,31 +101,5 @@
 		"latitude": 60.355379,
 		"longitude": 60.032930
 	}
-  },
-  {
-    "id": 11,
-    "name": "Шахта \"Новокальинская\"",
-    "mediaGroup": [
-      {
-        "media":"AgACAgIAAxkBAAIXJmezTtq5Wp8yMW4w0UeizK-ju_cyAAK-8DEbGaOgSemrMSdnE93TAQADAgADdwADNgQ",
-        "type":"photo"
-      },
-      {
-        "media":"AgACAgIAAxkBAAIXKWezTtrFTRjRLjM4ZUC1PKInlvq9AALB8DEbGaOgSfJLTvLWyCQkAQADAgADdwADNgQ",
-        "type":"photo"
-      },
-      {
-        "media":"AgACAgIAAxkBAAIXKGezTtrx2WAk2H9ttptdAUl5F15aAALA8DEbGaOgSTc7d5Tc5TQFAQADAgADdwADNgQ",
-        "type":"photo"
-      },
-      {
-        "media":"AgACAgIAAxkBAAIXKmezTtpAlTYgq2JCmI0JAQeDXJUJAALV7TEbCYSYSdAMiFMoG_VLAQADAgADdwADNgQ",
-        "type":"photo"
-      }
-    ],
-	"gps": {
-		"latitude": 60.286662,
-		"longitude": 60.023255
-	}
   }
 ]

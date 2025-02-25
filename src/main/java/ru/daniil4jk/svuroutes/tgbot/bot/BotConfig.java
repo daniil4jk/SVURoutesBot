@@ -15,5 +15,4 @@ public class BotConfig {
     private long adminChatId;
     private long reviewChatId;
     private long suggestionChatId;
-    private boolean splitDotText;
 }

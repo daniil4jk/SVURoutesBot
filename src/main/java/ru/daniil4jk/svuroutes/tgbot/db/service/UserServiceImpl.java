@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
     @PostConstruct
     private void checkAdminRoleOfMainAdmin() {
-        if (!get(config.getAdminChatId()).isAdmin()) {
+        if (contains(config.getAdminChatId()) && !get(config.getAdminChatId()).isAdmin()) {
             update(config.getAdminChatId(), u -> u.setAdmin(true));
         }
     }

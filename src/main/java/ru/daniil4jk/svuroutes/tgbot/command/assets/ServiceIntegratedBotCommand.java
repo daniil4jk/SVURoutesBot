@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import ru.daniil4jk.svuroutes.tgbot.bot.BotConfig;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
+import ru.daniil4jk.svuroutes.tgbot.command.MessageConfig;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Dot;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.MessageEntry;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Route;
@@ -24,6 +25,7 @@ public abstract class ServiceIntegratedBotCommand extends SimpleBotCommand {
     @Autowired @Lazy private ExpectedMessageService messageService;
     @Autowired @Lazy private ExpectedCallbackQueryService queryService;
     @Autowired @Lazy private BotConfig botConfig;
+    @Autowired @Lazy private MessageConfig messageConfig;
     @Autowired @Lazy private Map<CommandData, MessageEntry> messageMap;
     @Autowired @Lazy private Map<Long, Route> routeMap;
     @Autowired @Lazy private Map<Long, Dot> dotMap;

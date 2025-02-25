@@ -4,7 +4,6 @@ bot:
   admin-chat-id: 5349292657
   review-chat-id: -1002474257384
   suggestion-chat-id: -1002288022713
-  split-dot-messages: false
 content:
   filename:
     messages: messages.json
@@ -12,6 +11,10 @@ content:
     dots: dots.json
 keyboard:
   max-buttons-in-row: 1
+message:
+  split-dot-messages: false
+  show-dots: true
+  show-routes: true
 spring:
   application:
     name: SVURoutesBot

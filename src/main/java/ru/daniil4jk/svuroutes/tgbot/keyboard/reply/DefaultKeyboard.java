@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
+import ru.daniil4jk.svuroutes.tgbot.command.MessageConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,6 @@ public class DefaultKeyboard extends ReplyKeyboardMarkup {
     private final KeyboardButton addSuggestion = new KeyboardButton(String.valueOf(CommandData.ADD_SUGGESTION));
     private final List<KeyboardRow> keyboard = new ArrayList<>(List.of(
             new KeyboardRow(List.of(events, myRequests)),
-            new KeyboardRow(List.of(routes, dots)),
             new KeyboardRow(List.of(aboutUs, aboutProject)),
             new KeyboardRow(List.of(addSuggestion))
     ));
@@ -30,6 +30,20 @@ public class DefaultKeyboard extends ReplyKeyboardMarkup {
         setResizeKeyboard(true);
         setOneTimeKeyboard(false);
         setKeyboard(keyboard);
+    }
+
+    public DefaultKeyboard(MessageConfig config) {
+        List<KeyboardButton> additionalButtons = new ArrayList<>();
+        if (config.isShowDots()) {
+            additionalButtons.add(dots);
+        }
+        if (config.isShowRoutes()) {
+            additionalButtons.add(routes);
+        }
+        if (!additionalButtons.isEmpty()) {
+            keyboard.add(1, new KeyboardRow(additionalButtons));
+            setKeyboard(keyboard);
+        }
     }
 
     public void addRow(KeyboardRow row) {
