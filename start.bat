@@ -1,1 +1,0 @@
-C:\Users\danya\.jdks\corretto-17.0.13\bin\java.exe -jar target\tgbot-0.9.jar

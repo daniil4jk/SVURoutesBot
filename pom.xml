@@ -119,6 +119,58 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.45.1</version>
+				<executions>
+					<execution>
+						<id>Build docker container</id>
+						<phase>package</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>Push docker container</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>push</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<images>
+						<image>
+							<name>daniil4jk/${project.artifactId}</name>
+							<registry>registry.io</registry>
+							<build>
+								<from>openjdk:17-jdk-slim</from>
+								<tags>
+									<tag>${project.version}</tag>
+								</tags>
+								<ports>
+									<port>8080</port>
+								</ports>
+								<cmd>
+									<shell>java -jar ./${project.build.finalName}.jar</shell>
+								</cmd>
+								<assembly>
+									<basedir>/</basedir>
+									<inline>
+										<files>
+											<file>
+												<source>${project.build.directory}/${project.build.finalName}.jar</source>
+												<outputDirectory>/</outputDirectory>
+											</file>
+										</files>
+									</inline>
+								</assembly>
+							</build>
+						</image>
+					</images>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
