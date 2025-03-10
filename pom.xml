@@ -119,7 +119,7 @@
 					</excludes>
 				</configuration>
 			</plugin>
-			<!--<plugin>
+			<plugin>
 				<groupId>io.fabric8</groupId>
 				<artifactId>docker-maven-plugin</artifactId>
 				<version>0.45.1</version>
@@ -142,7 +142,7 @@
 				<configuration>
 					<images>
 						<image>
-							<name>daniil4jk/${project.artifactId}</name>
+							<name>daniil4jk/svu-routes-bot</name>
 							<registry>registry.io</registry>
 							<build>
 								<from>openjdk:17-jdk-slim</from>
@@ -163,6 +163,18 @@
 												<source>${project.build.directory}/${project.build.finalName}.jar</source>
 												<outputDirectory>/</outputDirectory>
 											</file>
+											<file>
+												<source>dots.json</source>
+												<outputDirectory>/</outputDirectory>
+											</file>
+											<file>
+												<source>routes.json</source>
+												<outputDirectory>/</outputDirectory>
+											</file>
+											<file>
+												<source>messages.json</source>
+												<outputDirectory>/</outputDirectory>
+											</file>
 										</files>
 									</inline>
 								</assembly>
@@ -170,7 +182,7 @@
 						</image>
 					</images>
 				</configuration>
-			</plugin>-->
+			</plugin>
 		</plugins>
 	</build>
 
