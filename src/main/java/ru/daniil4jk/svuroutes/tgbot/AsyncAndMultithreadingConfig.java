@@ -17,13 +17,13 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 public class AsyncAndMultithreadingConfig {
     @Bean
     protected ScheduledThreadPoolExecutor scheduledThreadPoolExecutor() {
-        return new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors());
+        return new ScheduledThreadPoolExecutor(Math.max(Runtime.getRuntime().availableProcessors(), 4));
     }
 
     @Bean
     protected TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setCorePoolSize(Runtime.getRuntime().availableProcessors());
+        threadPoolTaskExecutor.setCorePoolSize(Math.max(Runtime.getRuntime().availableProcessors(), 4));
         return threadPoolTaskExecutor;
     }
 }
