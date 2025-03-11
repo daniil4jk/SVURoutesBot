@@ -9,26 +9,28 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-@Setter
+
 @Slf4j
 @RestController
 @RequestMapping("/status")
 public class StatusController {
-    private Throwable lastThrowable;
+    private String stackTraceString;
+    private boolean throwableExist;
 
     @GetMapping
     public String getStatus() {
-        if (lastThrowable == null) {
-            return "ok";
+        if (throwableExist) {
+            return stackTraceString;
         } else {
-            return getStackStaceInString(lastThrowable);
+            return "ok";
         }
     }
 
-    private String getStackStaceInString(Throwable e) {
+    public void setLastThrowable(Throwable e) {
+        throwableExist = true;
         var stringWriter = new StringWriter();
         var printWriter = new PrintWriter(stringWriter);
         e.printStackTrace(printWriter);
-        return stringWriter.toString();
+        stackTraceString = stringWriter.toString();
     }
 }
