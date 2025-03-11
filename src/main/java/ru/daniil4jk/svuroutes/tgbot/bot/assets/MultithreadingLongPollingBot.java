@@ -9,11 +9,14 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.daniil4jk.svuroutes.tgbot.web.StatusController;
 
 @Slf4j
 public abstract class MultithreadingLongPollingBot extends TelegramLongPollingBot {
     @Autowired
     private TaskExecutor pool;
+    @Autowired
+    private StatusController statusController;
     @Getter
     private final UserExceptionReporter reporter = new UserExceptionReporter() {
         @Override
@@ -38,6 +41,9 @@ public abstract class MultithreadingLongPollingBot extends TelegramLongPollingBo
             try {
                 asyncUpdateHandle(update);
             } catch (Throwable e) {
+                if (e instanceof Error) {
+                    statusController.setLastThrowable(e);
+                }
                 reporter.reportExceptionToUsers(update, e);
             }
         });
