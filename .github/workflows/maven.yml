@@ -30,13 +30,13 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       env: 
-        ADMIN_CHAT_ID: ${{ ADMIN_CHAT_ID }}
-        BOT_TOKEN: ${{ BOT_TOKEN }}
-        JDBC_STRING: ${{ JDBC_STRING }}
-        POSTGRES_PASSWORD: ${{ POSTGRES_PASSWORD }}
-        POSTGRES_USERNAME: ${{ POSTGRES_USERNAME }}
-        REVIEW_CHAT_ID: ${{ REVIEW_CHAT_ID }}
-        SUGGESTION_CHAT_ID: ${{ SUGGESTION_CHAT_ID }}
+        ADMIN_CHAT_ID: ${{ secrets.ADMIN_CHAT_ID }}
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        JDBC_STRING: ${{ secrets.JDBC_STRING }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_USERNAME: ${{ secrets.POSTGRES_USERNAME }}
+        REVIEW_CHAT_ID: ${{ secrets.REVIEW_CHAT_ID }}
+        SUGGESTION_CHAT_ID: ${{ secrets.SUGGESTION_CHAT_ID }}
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
