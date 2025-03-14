@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanKeyboard;
@@ -43,7 +44,7 @@ public class SetAdminCmd extends ProtectedBotCommand {
 
     private ExpectedEvent<Message> ask(SimpleExecuter executer, long chatId) {
         SendMessage notification = SendMessage.builder()
-                .text("Введите юзернейм человека, которому хотите дать админку в формате @username")
+                .text(getMessageMap().get(CommandData.GIVE_ADMIN).getText())
                 .chatId(chatId)
                 .build();
 
@@ -72,7 +73,7 @@ public class SetAdminCmd extends ProtectedBotCommand {
             String username = userName;
             username = username.replace("@", "");
             var user = getUserService().getByUsername(username);
-            user.setAdmin(true);
+            getUserService().update(user, u -> u.setAdmin(true));
             executer.sendSimpleTextMessage(
                     String.format("Пользователь: %s теперь имеет права администратора!",
                             username), q.getMessage().getChatId());
