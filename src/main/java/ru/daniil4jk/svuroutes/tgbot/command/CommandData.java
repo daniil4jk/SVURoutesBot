@@ -25,6 +25,7 @@ public enum CommandData {
     ADMIN_REQUESTS("Смотреть заявки"),
     ADMIN_REQUEST("Репрезентация заявки"),
     ADMIN_PANEL("Панель администратора"),
+    GIVE_ADMIN("Выдать админку"),
     ADD_SUGGESTION("Написать предложение/пожелание"),
     HELP("Помощь");
 

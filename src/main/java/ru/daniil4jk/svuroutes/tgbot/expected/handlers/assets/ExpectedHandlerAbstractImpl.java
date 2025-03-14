@@ -13,11 +13,6 @@ import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.DefaultKeyboard;
 
 import java.util.Objects;
 
-/**
- * Abstract implementation of the ExpectedHandler interface.
- *
- * @param <T> the type of the object to be handled
- */
 @Slf4j
 public abstract class ExpectedHandlerAbstractImpl<T> implements ExpectedHandler<T> {
     @Autowired
@@ -31,18 +26,13 @@ public abstract class ExpectedHandlerAbstractImpl<T> implements ExpectedHandler<
     @Autowired
     private ExpectedSomethingService<T> expectedService;
 
-    /**
-     * Accepts an object of type T and processes it.
-     *
-     * @param t the object to be processed
-     */
-
     //todo refactor to many methods
     @Override
     public void accept(T t) {
         long id = getChatId(t);
         var event = expectedService.getLastExpectedEvent(id);
-        if (Objects.equals(getContent(t), event.getCancelTrigger()) &&
+        String content = getContent(t);
+        if (Objects.equals(content, event.getCancelTrigger()) &&
                 event.getCancelText() != null) {
             bot.nonExceptionExecute(SendMessage.builder()
                     .text(event.getCancelText())

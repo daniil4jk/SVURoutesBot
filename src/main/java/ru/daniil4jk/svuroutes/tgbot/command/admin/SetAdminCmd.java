@@ -4,10 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
+import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.AdminKeyboard;
 
 @Slf4j
@@ -35,22 +38,60 @@ public class SetAdminCmd extends ProtectedBotCommand {
 
     @Override
     public void protectedExecute(AbsSender absSender, long chatId, String[] strings) {
-        var executer = (SimpleExecuter) absSender;
-        String username = strings[0];
-        username = username.replace("@", "");
-        var user = getUserService().getByUsername(username);
-        user.setAdmin(true);
-        executer.sendSimpleTextMessage(
-                String.format("Пользователь: %s теперь имеет права администратора!",
-                        username), chatId);
-        try {
-            absSender.execute(SendMessage.builder()
+        getMessageService().addExpectedEvent(chatId, ask((SimpleExecuter) absSender, chatId));
+    }
+
+    private ExpectedEvent<Message> ask(SimpleExecuter executer, long chatId) {
+        SendMessage notification = SendMessage.builder()
+                .text("Введите юзернейм человека, которому хотите дать админку в формате @username")
+                .chatId(chatId)
+                .build();
+
+        return new ExpectedEvent<Message>(m -> {
+            String username = m.getText();
+            getQueryService().addExpectedEvent(chatId, setAdmin(executer, chatId, username));
+        })
+        .firstNotification(notification)
+        .notification(notification)
+        .onException(e -> SendMessage.builder()
+                .text(e.getLocalizedMessage())
+                .chatId(chatId)
+                .build())
+        .removeOnException(false);
+    }
+
+    private ExpectedEvent<CallbackQuery> setAdmin(SimpleExecuter executer, long chatId, String userName) {
+        SendMessage notification = SendMessage.builder()
+                .text(String.format("Вы точно хотите дать %s права АДМИНИСТРАТОРА? Он получит ТЕ ЖЕ ПРАВА что и вы!",
+                                userName))
+                .replyMarkup(new BooleanKeyboard("Да, я хочу это сделать", "Нет"))
+                .chatId(chatId)
+                .build();
+
+        return new ExpectedEvent<CallbackQuery>(q -> {
+            String username = userName;
+            username = username.replace("@", "");
+            var user = getUserService().getByUsername(username);
+            user.setAdmin(true);
+            executer.sendSimpleTextMessage(
+                    String.format("Пользователь: %s теперь имеет права администратора!",
+                            username), q.getMessage().getChatId());
+            executer.nonExceptionExecute(SendMessage.builder()
                     .text("Вы теперь администратор")
                     .chatId(user.getId())
                     .replyMarkup(adminKeyboard)
                     .build());
-        } catch (TelegramApiException e) {
-            log.error(e.getLocalizedMessage(), e);
-        }
+        })
+        .firstNotification(notification)
+        .notification(notification)
+        .onException(e -> SendMessage.builder()
+                .text("No value present".equals(e.getLocalizedMessage()) ?
+                        "Этот пользователь еще не зарегистрирован в боте" :
+                        e.getLocalizedMessage())
+                .chatId(chatId)
+                .build())
+        .removeOnException(true)
+        .cancelTrigger(BooleanKeyboard.Data.FALSE)
+        .cancelText("Отменено");
     }
 }

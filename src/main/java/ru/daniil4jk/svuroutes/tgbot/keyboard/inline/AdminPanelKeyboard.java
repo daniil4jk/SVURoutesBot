@@ -11,11 +11,15 @@ import java.util.List;
 public class AdminPanelKeyboard extends InlineKeyboardMarkup {
     private final InlineKeyboardButton showRequests = new InlineKeyboardButton(CommandData.ADMIN_REQUESTS.toString());
     private final InlineKeyboardButton createEvent = new InlineKeyboardButton(CommandData.ADMIN_CREATE_EVENTS.toString());
+    private final InlineKeyboardButton giveAdmin = new InlineKeyboardButton(CommandData.GIVE_ADMIN.toString());
+
 
     {
         showRequests.setCallbackData(String.valueOf(CommandData.ADMIN_REQUESTS.getId()));
         createEvent.setCallbackData(String.valueOf(CommandData.ADMIN_CREATE_EVENTS.getId()));
+        giveAdmin.setCallbackData(String.valueOf(CommandData.GIVE_ADMIN.getId()));
         this.setKeyboard(List.of(List.of(showRequests),
-                                List.of(createEvent)));
+                                List.of(createEvent),
+                                List.of(giveAdmin)));
     }
 }

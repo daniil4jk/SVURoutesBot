@@ -70,9 +70,9 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
                         chatId.set(q.getMessage().getChatId());
                     }
 
-                    if (String.valueOf(true).equals(q.getData())) {
+                    if (BooleanKeyboard.Data.TRUE.equals(q.getData())) {
                         processAccept(executer, request, chatId, true);
-                    } else if (String.valueOf(false).equals(q.getData())) {
+                    } else if (BooleanKeyboard.Data.FALSE.equals(q.getData())) {
                         processAccept(executer, request, chatId, false);
                     } else {
                         executer.sendSimpleTextMessage(
@@ -89,7 +89,7 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
                 .chatId(chatId.get())
                 .build())
         .removeOnException(false)
-        .cancelTrigger(CANCEL_TRIGGER)
+        .cancelTrigger(BooleanKeyboard.Data.CANCEL)
         .cancelText(CANCEL_TEXT);
     }
 
