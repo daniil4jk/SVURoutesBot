@@ -1,6 +1,7 @@
 package ru.daniil4jk.svuroutes.tgbot.command.user;
 
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.CopyMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -57,7 +58,7 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
                     m.getText(),
                     false
                     );
-            getQueryService().addExpectedEvent(chatId, getAccept(chatId, absSender, suggestion));
+            getQueryService().addExpectedEvent(chatId, getAccept(chatId, absSender, suggestion, m));
         })
         .firstNotification(notification)
         .notification(notification)
@@ -68,7 +69,8 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
         .cancelText(CANCEL_TEXT);
     }
 
-    private ExpectedEvent<CallbackQuery> getAccept(long chatId, AbsSender absSender, SuggestionEntity suggestion) {
+    private ExpectedEvent<CallbackQuery> getAccept(long chatId, AbsSender absSender,
+                                                   SuggestionEntity suggestion, Message messageToCopy) {
         SimpleExecuter executer = (SimpleExecuter) absSender;
 
         var message = SendMessage.builder()
@@ -78,24 +80,27 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
                 .build();
 
         return new ExpectedEvent<CallbackQuery>(q -> {
-            if (String.valueOf(true).equals(q.getData())) {
-                var acceptedSuggestion = getSuggestionService().save(suggestion);
-                executer.sendSimpleTextMessage(
-                        String.format("Предложение с номером %d успешно добавлено", acceptedSuggestion.getId()),
-                        q.getMessage().getChatId()
-                );
-                executer.sendSimpleTextMessage(
-                        String.format("""
-                        Предложение под номером %d
-                        От %s
-                        С текстом: %s
-                        """, acceptedSuggestion.getId(),
-                                acceptedSuggestion.getUser().getUsername().orElse("не указан"),
-                                acceptedSuggestion.getText()),
-                        q.getMessage().getChatId()
-                );
-            }
-
+            if (!String.valueOf(true).equals(q.getData())) return;
+            var acceptedSuggestion = getSuggestionService().save(suggestion);
+            executer.sendSimpleTextMessage(
+                    String.format("Предложение с номером %d успешно добавлено", acceptedSuggestion.getId()),
+                    q.getMessage().getChatId()
+            );
+            executer.sendSimpleTextMessage(
+                    String.format("""
+                    Предложение под номером %d
+                    От %s
+                    С текстом: %s
+                    """, acceptedSuggestion.getId(),
+                            acceptedSuggestion.getUser().getUsername().orElse("не указан"),
+                            acceptedSuggestion.getText()),
+                    q.getMessage().getChatId()
+            );
+            executer.nonExceptionExecute(CopyMessage.builder()
+                    .fromChatId(chatId)
+                    .messageId(messageToCopy.getMessageId())
+                    .chatId(getBotConfig().getSuggestionChatId())
+                    .build());
         })
         .firstNotification(message)
         .notification(message)
