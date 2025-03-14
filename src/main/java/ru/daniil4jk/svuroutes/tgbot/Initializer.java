@@ -7,16 +7,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.DefaultBotOptions;
-import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.generics.BotOptions;
 import org.telegram.telegrambots.meta.generics.BotSession;
 import org.telegram.telegrambots.meta.generics.LongPollingBot;
-import org.telegram.telegrambots.meta.generics.WebhookBot;
-import org.telegram.telegrambots.starter.SpringWebhookBot;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.util.Collection;
@@ -27,14 +22,14 @@ import java.util.Set;
 @Slf4j
 class Initializer {
     @Autowired
-    private Collection<LongPollingBot> bots;
+    private Collection<LongPollingBot> longPollingBots;
     private final Set<BotSession> sessions = new HashSet<>();
 
     @EventListener(ApplicationReadyEvent.class)
     public void register() {
         try {
             var telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-            for (var bot : bots) {
+            for (var bot : longPollingBots) {
                 sessions.add(telegramBotsApi.registerBot(bot));
             }
         } catch (TelegramApiException e) {

@@ -23,7 +23,7 @@ public class AsyncAndMultithreadingConfig {
     @Bean
     protected TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setCorePoolSize(Math.max(Runtime.getRuntime().availableProcessors(), 4));
+        threadPoolTaskExecutor.setCorePoolSize(Math.max(Runtime.getRuntime().availableProcessors() * 2, 16));
         return threadPoolTaskExecutor;
     }
 }
