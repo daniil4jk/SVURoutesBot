@@ -1,5 +1,6 @@
 package ru.daniil4jk.svuroutes.tgbot.db.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -91,5 +92,13 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public void remove(RequestEntity requestEntity) {
         remove(requestEntity.getId());
+    }
+
+    @PostConstruct
+    private void fixAnomalies() {
+        for (var request : repository.getAllByStatus(RequestEntity.Status.IN_PROGRESS)) {
+            request.setStatus(RequestEntity.Status.WAITING);
+            save(request);
+        }
     }
 }
