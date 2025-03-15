@@ -12,5 +12,5 @@ import java.util.Set;
 public interface RequestRepository extends JpaRepository<RequestEntity, Long> {
     Optional<RequestEntity> getFirstByIdGreaterThanAndStatus(long id, RequestEntity.Status status);
     boolean existsByIdAndRemoved(@NotNull Long id, boolean removed);
-    Set<RequestEntity> getByUser_IdAndRemoved(long userId, boolean removed);
+    Set<RequestEntity> getByUser_IdAndRemovedAndEvent_Removed(long userId, boolean removed, boolean eventRemoved);
 }

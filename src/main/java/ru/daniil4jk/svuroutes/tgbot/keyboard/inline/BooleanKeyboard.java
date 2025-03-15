@@ -3,6 +3,7 @@ package ru.daniil4jk.svuroutes.tgbot.keyboard.inline;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class BooleanKeyboard extends InlineKeyboardMarkup {
         var falseButton = new InlineKeyboardButton(falseText);
         trueButton.setCallbackData(Data.TRUE);
         falseButton.setCallbackData(Data.FALSE);
-        this.setKeyboard(Arrays.asList(List.of(trueButton, falseButton)));
+        this.setKeyboard(new ArrayList<>(List.of(List.of(trueButton, falseButton))));
     }
 
     public BooleanKeyboard(String trueText, String falseText, String cancelText) {

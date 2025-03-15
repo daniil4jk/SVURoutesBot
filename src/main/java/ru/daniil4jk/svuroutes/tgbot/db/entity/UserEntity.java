@@ -30,7 +30,7 @@ public class UserEntity {
     @Column(name = "removed", nullable = false)
     private boolean removed;
 
-    public Optional<String> getUsername() {
+    public Optional<String> getUsernameAsOptional() {
         return Optional.ofNullable(username);
     }
 

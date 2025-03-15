@@ -65,23 +65,24 @@ public class StartCmd extends BotCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
-        boolean isNew = false;
-        if (!userService.contains(chat.getId())) {
-            userService.createNew(chat.getId(), user);
-            isNew = true;
-            log.info("We have a new user!");
-        } else if (!Objects.equals(user.getUserName(),
-                userService.get(chat.getId()).getUsername().orElse(null))) {
-            userService.update(chat.getId(), u ->
-                u.setUsername(user.getUserName())
-            );
-        }
+        if (userService.contains(chat.getId())) {
+            var userEntity = userService.get(chat.getId());
+            if (!Objects.equals(user.getUserName(),
+                    userEntity.getUsername())) {
+                userService.update(chat.getId(), u ->
+                    u.setUsername(user.getUserName())
+                );
+            }
 
-        if (!isNew && userService.get(chat.getId()).isAdmin()) {
-            executeWithKeyboard(absSender, chat.getId(), adminKeyboard);
+            if (userEntity.isAdmin()) {
+                executeWithKeyboard(absSender, chat.getId(), adminKeyboard);
+            } else {
+                executeWithKeyboard(absSender, chat.getId(), keyboard);
+                log.info("Somebody used \"/start\" command");
+            }
         } else {
-            executeWithKeyboard(absSender, chat.getId(), keyboard);
-            log.info("Somebody used \"/start\" command");
+            userService.createNew(chat.getId(), user);
+            log.info("We have a new user!");
         }
 
         if (strings.length > 0) {

@@ -7,6 +7,7 @@ import ru.daniil4jk.svuroutes.tgbot.bot.Bot;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandService;
 import ru.daniil4jk.svuroutes.tgbot.command.admin.CreateEventCmd;
+import ru.daniil4jk.svuroutes.tgbot.command.admin.RemoveEventCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.user.*;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.assets.AbstractKeyboardDataHandler;
 
@@ -56,6 +57,7 @@ public class DynamicKeyboardDataHandler extends AbstractKeyboardDataHandler {
             case REGISTER -> commands.getCommand(RegisterCmd.class).execute(bot, chatId, args);
             case EVENT -> commands.getCommand(EventCmd.class).execute(bot, chatId, args);
             case ADMIN_CREATE_EVENT -> commands.getCommand(CreateEventCmd.class).execute(bot, chatId, args);
+            case ADMIN_REMOVE_EVENT -> commands.getCommand(RemoveEventCmd.class).execute(bot, chatId, args);
             case REQUEST -> commands.getCommand(RequestCmd.class).execute(bot, chatId, args);
             default -> bot.weDontKnowWhatThisIs(chatId);
         }

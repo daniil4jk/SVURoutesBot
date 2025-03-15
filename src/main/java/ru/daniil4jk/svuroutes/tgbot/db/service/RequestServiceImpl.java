@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 @Service
 public class RequestServiceImpl implements RequestService {
     private static final Predicate<RequestEntity> notRemoved =
-            request -> !request.isRemoved();
+            request -> !request.isRemoved() && !request.getEvent().isRemoved();
     @Autowired
     private RequestRepository repository;
 
@@ -43,7 +43,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public Set<RequestEntity> getByUserId(long userId) {
-        return repository.getByUser_IdAndRemoved(userId, false);
+        return repository.getByUser_IdAndRemovedAndEvent_Removed(userId, false, false);
     }
 
     @Override

@@ -17,8 +17,9 @@ public enum CommandData {
     ABOUT_PROJECT("О проекте"),
     EVENTS("Ближайшие экскурсии"),
     EVENT("Экскурсия"),
-    ADMIN_CREATE_EVENT("Создать экскурсию"),
+    ADMIN_CREATE_EVENT("Создать экскурсию"), //todo refactor this to one command
     ADMIN_CREATE_EVENTS("Создание экскурсии"),
+    ADMIN_REMOVE_EVENT("Удалить экскурсию"),
     REGISTER("Подать заявку"),
     REQUESTS("Мои заявки"),
     REQUEST("Заявка"),

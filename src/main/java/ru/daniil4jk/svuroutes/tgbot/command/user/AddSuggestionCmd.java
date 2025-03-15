@@ -31,10 +31,6 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
         super("suggestion", "add suggestion");
     }
 
-    private static final String ACCEPT_SUGGESTION = "Ваше предложение: ";
-    private static final String CANCEL_TRIGGER = "Отменить";
-    private static final String CANCEL_TEXT = "Вы отменили отправку приглашения";
-
     @Override
     public void execute(AbsSender absSender, long chatId, String[] strings) {
         getMessageService().addExpectedEvent(chatId, getSuggestion(chatId, absSender));
@@ -43,71 +39,73 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
     private ExpectedEvent<Message> getSuggestion(long chatId, AbsSender absSender) {
         var notification = SendMessage.builder()
                 .text(getMessageMap().get(CommandData.ADD_SUGGESTION).getText())
-                .replyMarkup(new CancelKeyboard(CANCEL_TRIGGER))
+                .replyMarkup(new CancelKeyboard("Отменить"))
                 .chatId(chatId)
                 .build();
 
         return new ExpectedEvent<Message>(m -> {
-
             if (m.getText().length() < 15) throw new IllegalArgumentException(
-                    "Длинна текста не может быть меньше 15 символов");
+                    "Длинна текста не может быть меньше 15 символов"
+            );
 
-            var suggestion = new SuggestionEntity(
-                    null,
-                    getUserService().get(m.getChatId()),
-                    m.getText(),
-                    false
-                    );
-            getQueryService().addExpectedEvent(chatId, getAccept(chatId, absSender, suggestion, m));
+            getQueryService().addExpectedEvent(chatId, getAccept(chatId, absSender, m));
         })
         .firstNotification(notification)
         .notification(notification)
         .onException(e -> SendMessage.builder()
                 .text(e.getLocalizedMessage()).chatId(chatId).build())
-        .removeOnException(false)
-        .cancelTrigger(CANCEL_TRIGGER)
-        .cancelText(CANCEL_TEXT);
+        .removeOnException(false);
     }
 
-    private ExpectedEvent<CallbackQuery> getAccept(long chatId, AbsSender absSender,
-                                                   SuggestionEntity suggestion, Message messageToCopy) {
+    private ExpectedEvent<CallbackQuery> getAccept(long chatId, AbsSender absSender, Message suggestionMessage) {
         SimpleExecuter executer = (SimpleExecuter) absSender;
 
-        var message = SendMessage.builder()
-                .text(ACCEPT_SUGGESTION + suggestion.getText())
+        var notification = SendMessage.builder()
+                .text("Ваше предложение: " + suggestionMessage.getText())
                 .replyMarkup(new BooleanKeyboard("Все верно", "Отмена"))
                 .chatId(chatId)
                 .build();
 
         return new ExpectedEvent<CallbackQuery>(q -> {
             if (!String.valueOf(true).equals(q.getData())) return;
-            var acceptedSuggestion = getSuggestionService().save(suggestion);
+
+            var acceptedSuggestion = getSuggestionService().save(new SuggestionEntity(
+                    null,
+                    getUserService().get(suggestionMessage.getChatId()),
+                    suggestionMessage.getText(),
+                    false
+            ));
+
             executer.sendSimpleTextMessage(
                     String.format("Предложение с номером %d успешно добавлено", acceptedSuggestion.getId()),
                     q.getMessage().getChatId()
             );
+
             executer.sendSimpleTextMessage(
                     String.format("""
                     Предложение под номером %d
                     От %s
                     С текстом: %s
                     """, acceptedSuggestion.getId(),
-                            acceptedSuggestion.getUser().getUsername().orElse("не указан"),
+                            acceptedSuggestion.getUser().getUsernameAsOptional().orElse("не указан"),
                             acceptedSuggestion.getText()),
                     q.getMessage().getChatId()
             );
+
             executer.nonExceptionExecute(CopyMessage.builder()
                     .fromChatId(chatId)
-                    .messageId(messageToCopy.getMessageId())
+                    .messageId(suggestionMessage.getMessageId())
                     .chatId(getBotConfig().getSuggestionChatId())
                     .build());
         })
-        .firstNotification(message)
-        .notification(message)
+        .firstNotification(notification)
+        .notification(notification)
         .onException(e -> SendMessage.builder()
-                .text(e.getLocalizedMessage()).chatId(chatId).build())
+                .text(e.getLocalizedMessage())
+                .chatId(chatId)
+                .build())
         .removeOnException(false)
-        .cancelTrigger(String.valueOf(false))
-        .cancelText(CANCEL_TEXT);
+        .cancelTrigger(BooleanKeyboard.Data.FALSE)
+        .cancelText("Вы отменили отправку приглашения");
     }
 }

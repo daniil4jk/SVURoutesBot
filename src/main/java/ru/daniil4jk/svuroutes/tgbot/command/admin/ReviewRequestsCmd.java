@@ -109,7 +109,7 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
                 request.getFirstName(), request.getLastName(),
                 request.getAge(), request.getClassNumber(),
                 request.getSchoolName(),
-                request.getUser().getUsername().orElse("не указан"));
+                request.getUser().getUsernameAsOptional().orElse("не указан"));
     }
 
     private void processAccept(SimpleExecuter executer, RequestEntity request,

@@ -23,7 +23,7 @@ public class EventEntity {
     @Column(name = "name", nullable = false)
     private String name;
     @Column(name = "request_id", nullable = false)
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<RequestEntity> requestEntities;
     @Column(name = "date", nullable = false)

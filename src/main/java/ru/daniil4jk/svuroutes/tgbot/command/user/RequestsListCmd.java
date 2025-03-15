@@ -19,8 +19,6 @@ public class RequestsListCmd extends StaticCommand {
         super("requests", "show list of actual requests",
                 CommandData.REQUESTS, null);
     }
-    //TODO добавить "Мои заявки"
-    //TODO добавить оповещение пользователя, о том что его заявка рассмотрена
 
 
     @Override

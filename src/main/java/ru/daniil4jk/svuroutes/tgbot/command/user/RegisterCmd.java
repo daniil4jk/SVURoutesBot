@@ -84,8 +84,6 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
             request.setLastName(m.getText());
             getMessageService().addExpectedEvent(chatId, getAge(chatId, absSender, request));
         })
-        .firstNotification(message)
-        .notification(message)
         .notification(message)
         .onException(e -> SendMessage.builder()
                 .text(e.getLocalizedMessage())
@@ -108,11 +106,10 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
                 throw new NumberFormatException("Введите ваш возраст в виде числа");
             }
         })
-                .firstNotification(message)
-                .notification(message)
-                .onException(e -> SendMessage.builder()
-                        .text(e.getLocalizedMessage()).chatId(chatId).build())
-                .removeOnException(false);
+        .notification(message)
+        .onException(e -> SendMessage.builder()
+                .text(e.getLocalizedMessage()).chatId(chatId).build())
+        .removeOnException(false);
     }
 
     private ExpectedEvent<Message> getClass(long chatId, AbsSender absSender,
@@ -130,7 +127,6 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
                 throw new NumberFormatException("Введите ваш класс в виде числа");
             }
         })
-        .firstNotification(message)
         .notification(message)
         .onException(e -> SendMessage.builder()
                 .text(e.getLocalizedMessage()).chatId(chatId).build())
@@ -147,11 +143,10 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
             request.setSchoolName(m.getText());
             getQueryService().addExpectedEvent(chatId, getAccept(chatId, absSender, request));
         })
-                .firstNotification(message)
-                .notification(message)
-                .onException(e -> SendMessage.builder()
-                        .text(e.getLocalizedMessage()).chatId(chatId).build())
-                .removeOnException(false);
+        .notification(message)
+        .onException(e -> SendMessage.builder()
+                .text(e.getLocalizedMessage()).chatId(chatId).build())
+        .removeOnException(false);
     }
 
     private ExpectedEvent<CallbackQuery> getAccept(long chatId, AbsSender absSender,

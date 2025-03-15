@@ -8,6 +8,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ServiceIntegratedBotCommand;
+import ru.daniil4jk.svuroutes.tgbot.db.entity.EventEntity;
+import ru.daniil4jk.svuroutes.tgbot.db.entity.RequestEntity;
 
 import java.util.NoSuchElementException;
 
@@ -32,8 +34,8 @@ public class RequestCmd extends ServiceIntegratedBotCommand {
     @Override
     public void execute(AbsSender absSender, long chatId, String[] strings) {
         try {
-            var request = getRequestService().get(Long.parseLong(strings[0]));
-            var event = request.getEvent();
+            RequestEntity request = getRequestService().get(Long.parseLong(strings[0]));
+            EventEntity event = request.getEvent();
             String requestStatus = switch (request.getStatus()) {
                 case WAITING -> "Ожидает рассмотрения";
                 case IN_PROGRESS -> "На рассмотрении";

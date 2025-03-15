@@ -36,6 +36,7 @@ public class EventCmd extends ServiceIntegratedBotCommand {
         try {
             var event = getEventService().get(Long.parseLong(strings[0]));
             var timeToEvent = getTime(event.getDate());
+            var user = getUserService().get(chatId);
             absSender.execute(SendMessage.builder()
                     .chatId(chatId)
                     .text(String.format(getMessageMap().get(CommandData.EVENT)
@@ -46,7 +47,7 @@ public class EventCmd extends ServiceIntegratedBotCommand {
                             %d часов
                             %d минут
                             """, timeToEvent[0], timeToEvent[1], timeToEvent[2]))
-                    .replyMarkup(new EventKeyboard(event))
+                    .replyMarkup(new EventKeyboard(event, user))
                     .build());
         } catch (TelegramApiException e) {
             log.error(e.getLocalizedMessage(), e);

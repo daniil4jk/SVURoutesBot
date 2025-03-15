@@ -158,7 +158,6 @@ class ConfirmEvent extends ExpectedEvent<CallbackQuery> {
                         В %s
                         %d числа
                         В %d часов, %d минут
-                        Будьте внимательны: ПОСЛЕ НАЖАТИЯ НА КНОПКУ УДАЛИТЬ СОЗДАННОЕ СОБЫТИЕ САМОСТОЯТЕЛЬНО ВЫ УЖЕ НЕ СМОЖЕТЕ
                         """, route.getName(),
                         monthNames[calendar.get(Calendar.MONTH)],
                         calendar.get(Calendar.DAY_OF_MONTH),
