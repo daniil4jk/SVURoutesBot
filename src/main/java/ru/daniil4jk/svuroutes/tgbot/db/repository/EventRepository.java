@@ -12,6 +12,6 @@ import java.util.Set;
 @Repository
 public interface EventRepository extends JpaRepository<EventEntity, Long> {
     @Query("select e from EventEntity e where e.date > ?1 and e.removed = false")
-    Set<EventEntity> findByDateAfter(Date date);
+    Set<EventEntity> findByDateAfterAndRemoved(Date date, boolean removed);
     boolean existsByIdAndRemoved(@NotNull Long id, boolean removed);
 }

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -79,6 +80,6 @@ public class EventServiceImpl implements EventService {
     }
 
     public Set<EventEntity> getActual() {
-        return repository.findByDateAfter(new Date()); //TODO replace by async updating date
+        return repository.findByDateAfterAndRemoved(new Date(), false); //TODO replace by async updating date
     }
 }

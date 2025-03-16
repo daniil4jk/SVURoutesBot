@@ -83,20 +83,14 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
 
             executer.sendSimpleTextMessage(
                     String.format("""
-                    Предложение под номером %d
-                    От %s
+                    Предложение с id: %d
+                    От: @%s
                     С текстом: %s
                     """, acceptedSuggestion.getId(),
                             acceptedSuggestion.getUser().getUsernameAsOptional().orElse("не указан"),
                             acceptedSuggestion.getText()),
-                    q.getMessage().getChatId()
+                    getBotConfig().getSuggestionChatId()
             );
-
-            executer.nonExceptionExecute(CopyMessage.builder()
-                    .fromChatId(chatId)
-                    .messageId(suggestionMessage.getMessageId())
-                    .chatId(getBotConfig().getSuggestionChatId())
-                    .build());
         })
         .firstNotification(notification)
         .notification(notification)

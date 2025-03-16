@@ -32,13 +32,13 @@ public class RemoveEventCmd extends ProtectedBotCommand {
     @Override
     protected void protectedExecute(AbsSender absSender, long chatId, String[] strings) {
         getMessageService().addExpectedEvent(chatId, getEventRemoveExpectedEvent(
-                chatId, Integer.parseInt(strings[0])
+                (SimpleExecuter) absSender, chatId, Integer.parseInt(strings[0])
         ));
     }
 
     private static final String CANCEL_TRIGGER = "ОТМЕНИТЬ";
 
-    private ExpectedEvent<Message> getEventRemoveExpectedEvent(long chatId, int eventId) {
+    private ExpectedEvent<Message> getEventRemoveExpectedEvent(SimpleExecuter executer, long chatId, int eventId) {
         EventEntity event = getEventService().get(eventId);
         SendMessage notification = SendMessage.builder()
                 .text(getMessageMap().get(CommandData.ADMIN_REMOVE_EVENT).getText() +
@@ -59,6 +59,9 @@ public class RemoveEventCmd extends ProtectedBotCommand {
         return new ExpectedEvent<Message>(m -> {
             if (String.format("УДАЛИТЬ %d ЭКСКУРСИЮ", event.getId()).equals(m.getText())) {
                 getEventService().remove(eventId);
+                executer.sendSimpleTextMessage(
+                        String.format("Экскурсия %s успешно удалена", event.getId()), m.getChatId()
+                );
             } else {
                 throw new IllegalArgumentException();
             }
