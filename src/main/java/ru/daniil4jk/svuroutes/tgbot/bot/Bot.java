@@ -2,9 +2,11 @@ package ru.daniil4jk.svuroutes.tgbot.bot;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -18,6 +20,7 @@ import ru.daniil4jk.svuroutes.tgbot.expected.handlers.ExpectedCallbackQueryHandl
 import ru.daniil4jk.svuroutes.tgbot.expected.handlers.ExpectedMessageHandler;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.DynamicKeyboardDataHandler;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.StaticKeyboardDataHandler;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.DefaultKeyboard;
 
 import java.io.Serializable;
 
@@ -34,6 +37,9 @@ public class Bot extends MultithreadingLongPollingCommandBot implements SimpleEx
     private DynamicKeyboardDataHandler dynamicKeyboardDataHandler;
     @Autowired @Lazy
     private StaticKeyboardDataHandler staticKeyboardDataHandler;
+    @Autowired @Lazy
+    @Qualifier("defaultKeyboard")
+    private DefaultKeyboard defaultKeyboard;
 
     public Bot(BotConfig config, CommandService commandService) {
         super(config.getToken());
@@ -81,9 +87,11 @@ public class Bot extends MultithreadingLongPollingCommandBot implements SimpleEx
     }
 
     public void weDontKnowWhatThisIs(long chatId) {
-        sendSimpleTextMessage(
-                "Я не понимаю вашу команду, пожалуйста, напишите по другому",
-                chatId);
+        nonExceptionExecute(SendMessage.builder()
+                .text("Я не понимаю вашу команду, пожалуйста, напишите по другому")
+                .chatId(chatId)
+                .replyMarkup(defaultKeyboard)
+                .build());
     }
 
     @Override

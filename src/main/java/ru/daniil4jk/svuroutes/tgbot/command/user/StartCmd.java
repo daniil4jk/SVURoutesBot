@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 public class StartCmd extends BotCommand {
     private static final CommandData messageName = CommandData.START;
 
-    @Qualifier("defaultKeyboard")
     @Autowired
+    @Qualifier("defaultKeyboard")
     private DefaultKeyboard keyboard;
     @Autowired
     private AdminKeyboard adminKeyboard;
