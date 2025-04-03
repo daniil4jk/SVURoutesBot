@@ -14,6 +14,7 @@ public class ExpectedEvent<T> {
     private BotApiMethodMessage firstNotification;
     private BotApiMethodMessage notification;
     private boolean removeOnException = true;
+    private boolean lastEventInChain = false;
     private String cancelTrigger;
     private String cancelText;
 
@@ -28,6 +29,11 @@ public class ExpectedEvent<T> {
 
     public ExpectedEvent<T> removeOnException(boolean removeOnException) {
         this.removeOnException = removeOnException;
+        return this;
+    }
+
+    public ExpectedEvent<T> lastEventInChain(boolean lastEventInChain) {
+        this.lastEventInChain = lastEventInChain;
         return this;
     }
 
