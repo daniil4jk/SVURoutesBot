@@ -63,8 +63,8 @@ public class AddAdminCmd extends ProtectedBotCommand {
 
     private ExpectedEvent<CallbackQuery> setAdmin(SimpleExecuter executer, long chatId, String userName) {
         SendMessage notification = SendMessage.builder()
-                .text(String.format("Вы точно хотите дать %s права АДМИНИСТРАТОРА? Он получит ТЕ ЖЕ ПРАВА что и вы!",
-                                userName))
+                .text("Вы точно хотите дать " + userName + " права АДМИНИСТРАТОРА? Он получит ТЕ ЖЕ ПРАВА что и вы! " +
+                                "(вы не можете дать права администратора пользователю, еще не заходившему в бот ни разу)")
                 .replyMarkup(new BooleanInlineKeyboard("Да, я хочу это сделать", "Нет"))
                 .chatId(chatId)
                 .build();
