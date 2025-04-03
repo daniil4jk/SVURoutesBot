@@ -1,7 +1,9 @@
 package ru.daniil4jk.svuroutes.tgbot.web;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -11,31 +13,20 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 
+@Setter
 @Slf4j
 @RestController
 @RequestMapping("/status")
 public class StatusController {
-    private ExceptionWrapper e;
-    private boolean throwableExist;
+    private Exception lastThrowable = null;
 
     @GetMapping
-    public String getStatus() throws ExceptionWrapper {
-        if (throwableExist) {
-            throw e;
+    public ResponseEntity<String> getStatus() {
+        if (lastThrowable != null) {
+            return ResponseEntity.internalServerError()
+                    .body(lastThrowable.getMessage());
         } else {
-            return "OK";
-        }
-    }
-
-    public void setLastThrowable(Throwable e) {
-        this.e = new ExceptionWrapper(e);
-        throwableExist = true;
-    }
-
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public static class ExceptionWrapper extends Exception {
-        public ExceptionWrapper(Throwable e) {
-            super(e);
+            return ResponseEntity.ok("OK");
         }
     }
 }
