@@ -4,17 +4,16 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class BooleanKeyboard extends InlineKeyboardMarkup {
+public class BooleanInlineKeyboard extends InlineKeyboardMarkup {
     public static class Data {
         public static final String TRUE = String.valueOf(true);
         public static final String FALSE = String.valueOf(false);
         public static final String CANCEL = "exit";
     }
 
-    public BooleanKeyboard(String trueText, String falseText) {
+    public BooleanInlineKeyboard(String trueText, String falseText) {
         var trueButton = new InlineKeyboardButton(trueText);
         var falseButton = new InlineKeyboardButton(falseText);
         trueButton.setCallbackData(Data.TRUE);
@@ -22,7 +21,7 @@ public class BooleanKeyboard extends InlineKeyboardMarkup {
         this.setKeyboard(new ArrayList<>(List.of(List.of(trueButton, falseButton))));
     }
 
-    public BooleanKeyboard(String trueText, String falseText, String cancelText) {
+    public BooleanInlineKeyboard(String trueText, String falseText, String cancelText) {
         this(trueText, falseText);
         var cancelButton = new InlineKeyboardButton(cancelText);
         cancelButton.setCallbackData(Data.CANCEL);

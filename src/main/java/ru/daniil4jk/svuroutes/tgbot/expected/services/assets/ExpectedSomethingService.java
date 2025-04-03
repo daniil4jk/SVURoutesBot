@@ -6,13 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.bot.Bot;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.CancelKeyboard;
 
 import java.util.Deque;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.function.Predicate;
 
 @Slf4j
 public abstract class ExpectedSomethingService<T> {

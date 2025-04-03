@@ -2,7 +2,6 @@ package ru.daniil4jk.svuroutes.tgbot.command.admin;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
@@ -10,7 +9,6 @@ import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.EventEntity;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanKeyboard;
 
 @Component
 public class RemoveEventCmd extends ProtectedBotCommand {

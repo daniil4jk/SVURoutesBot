@@ -11,7 +11,7 @@ import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.RequestEntity;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanKeyboard;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -60,7 +60,7 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
 
         SendMessage notification = SendMessage.builder()
                 .text(getMessageMap().get(CommandData.ADMIN_REQUEST).getText() + getRequestString(request))
-                .replyMarkup(new BooleanKeyboard("Принять", "Отказать", CANCEL_TRIGGER))
+                .replyMarkup(new BooleanInlineKeyboard("Принять", "Отказать", CANCEL_TRIGGER))
                 .chatId(chatId.get())
                 .build();
 
@@ -70,9 +70,9 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
                         chatId.set(q.getMessage().getChatId());
                     }
 
-                    if (BooleanKeyboard.Data.TRUE.equals(q.getData())) {
+                    if (BooleanInlineKeyboard.Data.TRUE.equals(q.getData())) {
                         processAccept(executer, request, chatId, true);
-                    } else if (BooleanKeyboard.Data.FALSE.equals(q.getData())) {
+                    } else if (BooleanInlineKeyboard.Data.FALSE.equals(q.getData())) {
                         processAccept(executer, request, chatId, false);
                     } else {
                         executer.sendSimpleTextMessage(
@@ -89,7 +89,7 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
                 .chatId(chatId.get())
                 .build())
         .removeOnException(false)
-        .cancelTrigger(BooleanKeyboard.Data.CANCEL)
+        .cancelTrigger(BooleanInlineKeyboard.Data.CANCEL)
         .cancelText(CANCEL_TEXT);
     }
 

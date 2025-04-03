@@ -13,7 +13,7 @@ import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Route;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.EventService;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanKeyboard;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.EventsKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.RoutesListKeyboard;
 
@@ -164,7 +164,7 @@ class ConfirmEvent extends ExpectedEvent<CallbackQuery> {
                         calendar.get(Calendar.HOUR_OF_DAY),
                         calendar.get(Calendar.MINUTE)))
                 .chatId(chatId.get())
-                .replyMarkup(new BooleanKeyboard("Все так", "Отменить"))
+                .replyMarkup(new BooleanInlineKeyboard("Все так", "Отменить"))
                 .build();
         firstNotification(notification);
         notification(notification);

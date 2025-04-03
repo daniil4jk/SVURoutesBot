@@ -1,7 +1,6 @@
 package ru.daniil4jk.svuroutes.tgbot.command.user;
 
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.CopyMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -11,8 +10,8 @@ import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ServiceIntegratedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.SuggestionEntity;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanKeyboard;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.CancelKeyboard;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.CancelReplyKeyboard;
 
 @Component
 public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
@@ -31,6 +30,8 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
         super("suggestion", "add suggestion");
     }
 
+    private static final String CANCEL_MESSAGE = "Вы отменили отправку предложения/пожелания";
+
     @Override
     public void execute(AbsSender absSender, long chatId, String[] strings) {
         getMessageService().addExpectedEvent(chatId, getSuggestion(chatId, absSender));
@@ -39,7 +40,7 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
     private ExpectedEvent<Message> getSuggestion(long chatId, AbsSender absSender) {
         var notification = SendMessage.builder()
                 .text(getMessageMap().get(CommandData.ADD_SUGGESTION).getText())
-                .replyMarkup(new CancelKeyboard("Отменить"))
+                .replyMarkup(new CancelReplyKeyboard("Отменить"))
                 .chatId(chatId)
                 .build();
 
@@ -54,7 +55,9 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
         .notification(notification)
         .onException(e -> SendMessage.builder()
                 .text(e.getLocalizedMessage()).chatId(chatId).build())
-        .removeOnException(false);
+        .removeOnException(false)
+        .cancelTrigger("Отменить")
+        .cancelText(CANCEL_MESSAGE);
     }
 
     private ExpectedEvent<CallbackQuery> getAccept(long chatId, AbsSender absSender, Message suggestionMessage) {
@@ -62,7 +65,7 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
 
         var notification = SendMessage.builder()
                 .text("Ваше предложение: " + suggestionMessage.getText())
-                .replyMarkup(new BooleanKeyboard("Все верно", "Отмена"))
+                .replyMarkup(new BooleanInlineKeyboard("Все верно", "Отмена"))
                 .chatId(chatId)
                 .build();
 
@@ -99,7 +102,7 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
                 .chatId(chatId)
                 .build())
         .removeOnException(false)
-        .cancelTrigger(BooleanKeyboard.Data.FALSE)
-        .cancelText("Вы отменили отправку приглашения");
+        .cancelTrigger(BooleanInlineKeyboard.Data.FALSE)
+        .cancelText(CANCEL_MESSAGE);
     }
 }

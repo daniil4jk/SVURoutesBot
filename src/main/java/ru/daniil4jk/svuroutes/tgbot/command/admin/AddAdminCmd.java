@@ -11,17 +11,17 @@ import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanKeyboard;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.AdminKeyboard;
 
 @Slf4j
 @Component
-public class SetAdminCmd extends ProtectedBotCommand {
+public class AddAdminCmd extends ProtectedBotCommand {
     @Autowired
     private AdminKeyboard adminKeyboard;
 
-    public SetAdminCmd() {
-        super("setadmin", "set user as administrator");
+    public AddAdminCmd() {
+        super("addadmin", "add administrator rules");
         setOnlyAdminAccess(true);
     }
 
@@ -32,7 +32,7 @@ public class SetAdminCmd extends ProtectedBotCommand {
      *                          enter into chat)
      * @param description       the description of this command
      */
-    public SetAdminCmd(String commandIdentifier, String description) {
+    public AddAdminCmd(String commandIdentifier, String description) {
         super(commandIdentifier, description);
         setOnlyAdminAccess(true);
     }
@@ -65,7 +65,7 @@ public class SetAdminCmd extends ProtectedBotCommand {
         SendMessage notification = SendMessage.builder()
                 .text(String.format("Вы точно хотите дать %s права АДМИНИСТРАТОРА? Он получит ТЕ ЖЕ ПРАВА что и вы!",
                                 userName))
-                .replyMarkup(new BooleanKeyboard("Да, я хочу это сделать", "Нет"))
+                .replyMarkup(new BooleanInlineKeyboard("Да, я хочу это сделать", "Нет"))
                 .chatId(chatId)
                 .build();
 
@@ -92,7 +92,7 @@ public class SetAdminCmd extends ProtectedBotCommand {
                 .chatId(chatId)
                 .build())
         .removeOnException(true)
-        .cancelTrigger(BooleanKeyboard.Data.FALSE)
+        .cancelTrigger(BooleanInlineKeyboard.Data.FALSE)
         .cancelText("Отменено");
     }
 }

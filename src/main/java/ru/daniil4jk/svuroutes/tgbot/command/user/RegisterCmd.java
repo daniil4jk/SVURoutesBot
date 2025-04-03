@@ -9,7 +9,7 @@ import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ServiceIntegratedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.RequestEntity;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanKeyboard;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 
 @Component
 public class RegisterCmd extends ServiceIntegratedBotCommand {
@@ -153,7 +153,7 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
                                                    RequestEntity request) {
         var event = request.getEvent();
         var message = SendMessage.builder()
-                .replyMarkup(new BooleanKeyboard("Все верно", "Отмена"))
+                .replyMarkup(new BooleanInlineKeyboard("Все верно", "Отмена"))
                 .text(acceptMessage + String.format("""
                         \nЭкскурсия - %s
                         Имя - %s
