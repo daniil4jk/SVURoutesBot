@@ -10,7 +10,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 @Setter
 @Getter
@@ -56,7 +55,7 @@ public abstract class UserExceptionReporter {
         return stringWriter.toString();
     }
 
-    private static final int limit = 4000;
+    private static final int limit = 1000;
 
     private String[] splitForLimit(String input) {
         String[] strings = input.split("\n");
