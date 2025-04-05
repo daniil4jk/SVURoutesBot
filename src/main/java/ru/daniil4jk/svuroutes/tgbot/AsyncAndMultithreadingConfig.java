@@ -3,6 +3,7 @@ package ru.daniil4jk.svuroutes.tgbot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -16,15 +17,21 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 @EnableScheduling
 public class AsyncAndMultithreadingConfig {
     @Bean
+    @Lazy
     protected ScheduledThreadPoolExecutor scheduledThreadPoolExecutor() {
-        return new ScheduledThreadPoolExecutor(Math.max(Runtime.getRuntime().availableProcessors(), 4));
+        ScheduledThreadPoolExecutor executor =
+                new ScheduledThreadPoolExecutor(Math.max(Runtime.getRuntime().availableProcessors(), 4));
+        log.info("Created threads for scheduledTaskExecutor: {}", executor.getCorePoolSize());
+        return executor;
     }
 
     @Bean
     protected TaskExecutor taskExecutor() {
-        ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setCorePoolSize(Math.max(Runtime.getRuntime().availableProcessors() * 2, 16));
-        return threadPoolTaskExecutor;
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(Math.max(Runtime.getRuntime().availableProcessors() * 2, 16));
+        log.info("Physical threads: {}, created threads for taskExecutor: {}",
+                Runtime.getRuntime().availableProcessors(), executor.getCorePoolSize());
+        return executor;
     }
 }
 
