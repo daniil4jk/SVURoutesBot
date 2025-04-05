@@ -2,7 +2,6 @@ package ru.daniil4jk.svuroutes.tgbot.expected;
 
 import lombok.Getter;
 import org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

@@ -3,7 +3,6 @@ package ru.daniil4jk.svuroutes.tgbot.keyboard.inline;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
-import ru.daniil4jk.svuroutes.tgbot.content.DTO.Dot;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Route;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.KeyboardConfig;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.assets.TListKeyboard;

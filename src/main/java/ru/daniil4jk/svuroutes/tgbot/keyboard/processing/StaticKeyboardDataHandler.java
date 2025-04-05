@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 import ru.daniil4jk.svuroutes.tgbot.bot.Bot;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandService;
+import ru.daniil4jk.svuroutes.tgbot.command.admin.AddAdminCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.admin.AdminPanelCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.admin.CreateEventsCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.admin.ReviewRequestsCmd;
-import ru.daniil4jk.svuroutes.tgbot.command.admin.AddAdminCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.user.*;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.assets.AbstractKeyboardDataHandler;
 

@@ -1,6 +1,5 @@
 package ru.daniil4jk.svuroutes.tgbot.keyboard.inline;
 
-import org.jetbrains.annotations.NotNull;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
@@ -8,7 +7,6 @@ import ru.daniil4jk.svuroutes.tgbot.db.entity.EventEntity;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.UserEntity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class EventKeyboard extends InlineKeyboardMarkup {

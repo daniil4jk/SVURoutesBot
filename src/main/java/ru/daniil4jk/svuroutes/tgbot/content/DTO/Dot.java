@@ -1,6 +1,5 @@
 package ru.daniil4jk.svuroutes.tgbot.content.DTO;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
@@ -8,7 +7,6 @@ import ru.daniil4jk.svuroutes.tgbot.content.DTO.assets.HasAttributes;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @ToString
 @EqualsAndHashCode

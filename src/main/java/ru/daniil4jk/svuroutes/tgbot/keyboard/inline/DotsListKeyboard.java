@@ -10,7 +10,6 @@ import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.assets.TListKeyboard;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 
 @Slf4j
 @Component
