@@ -2,7 +2,6 @@ package ru.daniil4jk.svuroutes.tgbot.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SoftDelete;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
