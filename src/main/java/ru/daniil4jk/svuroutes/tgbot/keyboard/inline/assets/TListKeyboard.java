@@ -8,7 +8,6 @@ import ru.daniil4jk.svuroutes.tgbot.keyboard.KeyboardConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
