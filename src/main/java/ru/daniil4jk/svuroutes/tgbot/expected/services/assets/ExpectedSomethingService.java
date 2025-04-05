@@ -14,8 +14,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 public abstract class ExpectedSomethingService<T> {
-    public static final String CANCEL = "Отменить";
-    public static final String CANCEL_MESSAGE = "Отменено";
     private final Map<Long, Deque<ExpectedEvent<T>>> map = new ConcurrentHashMap<>();
     @Autowired
     private Bot bot;
@@ -29,8 +27,7 @@ public abstract class ExpectedSomethingService<T> {
     private void sendFirstNotification(@NotNull ExpectedEvent<T> event) {
         if (event.getFirstNotification() != null) {
             try {
-                var message = event.getNotification();
-                bot.execute(message);
+                bot.execute(event.getNotification());
             } catch (TelegramApiException e) {
                 log.error(e.getLocalizedMessage(), e);
             }
@@ -46,10 +43,12 @@ public abstract class ExpectedSomethingService<T> {
         return map.containsKey(id) && !map.get(id).isEmpty();
     }
 
-    public void removeEvent(long id, @NotNull ExpectedEvent<T> toRemove) {
+    public synchronized void removeEvent(long id, @NotNull ExpectedEvent<T> toRemove) {
         var stack = map.get(id);
-        stack.removeIf(toRemove::equals);
-        if (stack.isEmpty()) map.remove(id);
+        if (stack != null) {
+            stack.removeIf(toRemove::equals);
+            if (stack.isEmpty()) map.remove(id);
+        }
     }
 
     public void removeEvents(long id) {
