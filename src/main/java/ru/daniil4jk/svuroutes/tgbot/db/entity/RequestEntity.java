@@ -2,6 +2,7 @@ package ru.daniil4jk.svuroutes.tgbot.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SoftDelete;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
@@ -29,15 +30,23 @@ public class RequestEntity {
     @Column(name = "school_name")
     private String schoolName;
     @JoinColumn(name = "event_id")
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = {CascadeType.PERSIST})
     private EventEntity event;
     @JoinColumn(name = "user_id")
     @ManyToOne(cascade = CascadeType.MERGE)
     private UserEntity user;
     @Column(name = "status", nullable = false)
     private Status status;
-    @Column(name = "removed", nullable = false)
-    private boolean removed;
+
+    @PrePersist
+    public void prePersist() {
+        System.err.println("REQUEST PRE PERSIST");
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        System.err.println("REQUEST PRE UPDATE");
+    }
 
     @Override
     public final boolean equals(Object o) {

@@ -1,30 +1,34 @@
 package ru.daniil4jk.svuroutes.tgbot.db.service;
 
+import jakarta.persistence.PersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.SuggestionEntity;
 import ru.daniil4jk.svuroutes.tgbot.db.repository.SuggestionRepository;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.SuggestionService;
+import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
 
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 @Component
 public class SuggestionServiceImpl implements SuggestionService {
-    private static final Predicate<SuggestionEntity> notRemoved =
-            suggestion -> !suggestion.isRemoved();
-
     @Autowired
     private SuggestionRepository repository;
+    @Autowired
+    private UserService userService;
 
     @Override
     public SuggestionEntity save(SuggestionEntity entity) {
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
     public SuggestionEntity get(long id) {
-        return repository.findById(id).filter(notRemoved).orElseThrow();
+        return repository.findById(id).orElseThrow();
     }
 
     @Override
@@ -34,7 +38,7 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     @Override
     public boolean contains(long id) {
-        return repository.existsByIdAndRemoved(id, false);
+        return repository.existsById(id);
     }
 
     @Override
@@ -56,11 +60,20 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     @Override
     public void remove(long id) {
-        update(id, e -> e.setRemoved(true));
+        repository.deleteById(id);
     }
 
     @Override
     public void remove(SuggestionEntity entity) {
-        remove(entity.getId());
+        repository.delete(entity);
+    }
+
+    @Override
+    public SuggestionEntity createNew(long chatId, String text) {
+        return save(new SuggestionEntity(
+                null,
+                userService.get(chatId),
+                text
+        ));
     }
 }

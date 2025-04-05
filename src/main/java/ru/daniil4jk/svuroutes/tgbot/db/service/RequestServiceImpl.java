@@ -1,6 +1,7 @@
 package ru.daniil4jk.svuroutes.tgbot.db.service;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,13 +14,10 @@ import ru.daniil4jk.svuroutes.tgbot.db.service.assets.RequestService;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 @Service
 public class RequestServiceImpl implements RequestService {
-    private static final Predicate<RequestEntity> notRemoved =
-            request -> !request.isRemoved() && !request.getEvent().isRemoved();
     @Autowired
     private RequestRepository repository;
 
@@ -28,33 +26,35 @@ public class RequestServiceImpl implements RequestService {
                                    Integer classNumber, String schoolName,
                                    EventEntity event, UserEntity user) {
         return save(new RequestEntity(null, firstName, lastName, age, classNumber,
-                schoolName, event, user, RequestEntity.Status.WAITING, false));
+                schoolName, event, user, RequestEntity.Status.WAITING));
     }
 
     @Override
     public Optional<RequestEntity> getNext(Long currentId) {
         return Optional.ofNullable(currentId).map(
-                        currId -> repository
-                                .getFirstByIdGreaterThanAndStatus(currId, RequestEntity.Status.WAITING)
-                                .filter(notRemoved))
-                .orElseGet(() -> repository
-                        .getFirstByIdGreaterThanAndStatus(0L, RequestEntity.Status.WAITING)
-                        .filter(notRemoved));
+                        currId -> repository.getFirstByIdGreaterThanAndStatus(
+                                currId, RequestEntity.Status.WAITING))
+                .orElseGet(() -> repository.getFirstByIdGreaterThanAndStatus(
+                        0L, RequestEntity.Status.WAITING));
     }
 
     @Override
     public Set<RequestEntity> getByUserId(long userId) {
-        return repository.getByUser_IdAndRemovedAndEvent_Removed(userId, false, false);
+        return repository.findAllByUser_Id(userId);
     }
 
     @Override
     public RequestEntity save(RequestEntity requestEntity) {
-        return repository.save(requestEntity);
+        try {
+            return repository.save(requestEntity);
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
     public RequestEntity get(long id) {
-        return repository.findById(id).filter(notRemoved).orElseThrow();
+        return repository.findById(id).orElseThrow();
     }
 
     @Override
@@ -64,7 +64,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public boolean contains(long id) {
-        return repository.existsByIdAndRemoved(id, false);
+        return repository.existsById(id);
     }
 
     @Override
@@ -86,17 +86,17 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public void remove(long id) {
-        update(id, e -> e.setRemoved(true));
+        repository.deleteById(id);
     }
 
     @Override
     public void remove(RequestEntity requestEntity) {
-        remove(requestEntity.getId());
+        repository.delete(requestEntity);
     }
 
     @PostConstruct
     private void fixAnomalies() {
-        for (var request : repository.getAllByStatus(RequestEntity.Status.IN_PROGRESS)) {
+        for (var request : repository.findAllByStatus(RequestEntity.Status.IN_PROGRESS)) {
             request.setStatus(RequestEntity.Status.WAITING);
             save(request);
         }

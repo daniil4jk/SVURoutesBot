@@ -6,6 +6,6 @@ import java.util.Date;
 import java.util.Set;
 
 public interface EventService extends TService<EventEntity> {
-    EventEntity createNew(long routeId, Date end);
+    EventEntity createNew(long routeId, Date end, String tourGuide, int maxUsers);
     Set<EventEntity> getActual();
 }

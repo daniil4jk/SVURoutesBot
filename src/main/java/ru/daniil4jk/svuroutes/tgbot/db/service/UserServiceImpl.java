@@ -1,11 +1,11 @@
 package ru.daniil4jk.svuroutes.tgbot.db.service;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import ru.daniil4jk.svuroutes.tgbot.bot.BotConfig;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.UserEntity;
 import ru.daniil4jk.svuroutes.tgbot.db.repository.UserRepository;
@@ -13,13 +13,10 @@ import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
-    private static final Predicate<UserEntity> notRemoved =
-            user -> !user.isRemoved();
     @Autowired
     private UserRepository repository;
     @Autowired
@@ -27,22 +24,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserEntity createNew(Long id, User user) {
-        return save(new UserEntity(id, new ArrayList<>(), user.getUserName(), false, false));
+        return save(new UserEntity(id, new ArrayList<>(), user.getUserName(), false));
     }
 
     @Override
     public UserEntity getByUsername(String username) {
-        return repository.getByUsernameContainsIgnoreCase(username).filter(notRemoved).orElseThrow();
+        return repository.getByUsernameContainsIgnoreCase(username).orElseThrow();
     }
 
     @Override
     public UserEntity save(UserEntity userEntity) {
-        return repository.save(userEntity);
+        try {
+            return repository.save(userEntity);
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
     public UserEntity get(long id) {
-        return repository.findById(id).filter(notRemoved).orElseThrow();
+        return repository.findById(id).orElseThrow();
     }
 
     @Override
@@ -52,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean contains(long id) {
-        return repository.existsByIdAndRemoved(id, false);
+        return repository.existsById(id);
     }
 
     @Override
@@ -74,12 +75,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void remove(long id) {
-        update(id, e -> e.setRemoved(true));
+        repository.deleteById(id);
     }
 
     @Override
     public void remove(UserEntity userEntity) {
-        remove(userEntity.getId());
+        repository.delete(userEntity);
     }
 
     @PostConstruct

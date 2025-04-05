@@ -2,8 +2,10 @@ package ru.daniil4jk.svuroutes.tgbot.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SoftDelete;
 
 @Entity
+@SoftDelete
 @ToString
 @Getter
 @Setter
@@ -20,7 +22,4 @@ public class SuggestionEntity {
     private UserEntity user;
     @Column(name = "text", nullable = false)
     private String text;
-    @Column(name = "removed")
-    private boolean removed;
-
 }

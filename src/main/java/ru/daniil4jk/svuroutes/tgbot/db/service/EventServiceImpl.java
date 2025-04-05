@@ -1,5 +1,6 @@
 package ru.daniil4jk.svuroutes.tgbot.db.service;
 
+import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,14 +14,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class EventServiceImpl implements EventService {
-    private static final Predicate<EventEntity> notRemoved =
-            event -> !event.isRemoved();
     @Autowired
     private Map<Long, Route> routes;
     @Autowired
@@ -28,7 +25,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventEntity get(long id) {
-        return repository.findById(id).filter(notRemoved).orElseThrow();
+        return repository.findById(id).orElseThrow();
     }
 
     @Override
@@ -38,7 +35,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public boolean contains(long id) {
-        return repository.existsByIdAndRemoved(id, false);
+        return repository.existsById(id);
     }
 
     @Override
@@ -46,25 +43,28 @@ public class EventServiceImpl implements EventService {
         return contains(eventEntity.getId());
     }
 
-    @Override
-    public EventEntity createNew(long routeId, Date end) {
+    public EventEntity createNew(long routeId, Date end, String tourGuide, int maxUsers) {
         return save(new EventEntity(null, routes.get(routeId).getName(),
-                new ArrayList<>(), end, routeId, false));
+                new ArrayList<>(), maxUsers, end, tourGuide, routeId));
     }
 
     @Override
     public EventEntity save(EventEntity eventEntity) {
-        return repository.save(eventEntity);
+        try {
+            return repository.save(eventEntity);
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
     public void remove(long id) {
-        update(id, e -> e.setRemoved(true));
+        repository.deleteById(id);
     }
 
     @Override
     public void remove(EventEntity eventEntity) {
-        remove(eventEntity.getId());
+        repository.delete(eventEntity);
     }
 
     @Override
@@ -80,6 +80,6 @@ public class EventServiceImpl implements EventService {
     }
 
     public Set<EventEntity> getActual() {
-        return repository.findByDateAfterAndRemoved(new Date(), false); //TODO replace by async updating date
+        return repository.findByDateAfter(new Date()); //TODO replace by async updating date
     }
 }
