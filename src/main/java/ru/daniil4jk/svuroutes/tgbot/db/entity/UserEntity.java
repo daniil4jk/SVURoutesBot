@@ -2,6 +2,7 @@ package ru.daniil4jk.svuroutes.tgbot.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SoftDelete;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Entity
+@SoftDelete
 @ToString
 @Getter
 @Setter
@@ -27,8 +29,6 @@ public class UserEntity {
     private String username;
     @Column(name = "admin", nullable = false)
     private boolean admin;
-    @Column(name = "removed", nullable = false)
-    private boolean removed;
 
     public Optional<String> getUsernameAsOptional() {
         return Optional.ofNullable(username);
