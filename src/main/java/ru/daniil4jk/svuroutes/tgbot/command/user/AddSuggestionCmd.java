@@ -10,7 +10,6 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ServiceIntegratedBotCommand;
-import ru.daniil4jk.svuroutes.tgbot.db.entity.SuggestionEntity;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.CancelReplyKeyboard;
@@ -79,12 +78,10 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
         return new ExpectedEvent<CallbackQuery>(q -> {
             if (!String.valueOf(true).equals(q.getData())) return;
 
-            var acceptedSuggestion = getSuggestionService().save(new SuggestionEntity(
-                    null,
-                    getUserService().get(suggestionMessage.getChatId()),
-                    suggestionMessage.getText(),
-                    false
-            ));
+            var acceptedSuggestion = getSuggestionService().createNew(
+                    suggestionMessage.getChatId(),
+                    suggestionMessage.getText()
+            );
 
             executer.nonExceptionExecute(SendMessage.builder()
                             .text(String.format("Предложение с номером %d успешно добавлено",
