@@ -33,7 +33,7 @@ public class EventEntity {
     @Column(name = "date", nullable = false)
     private Date date;
     @Column(name = "tour_guide")
-    private String tourGuide;
+    private String guideName;
     @Column(name = "route_id", nullable = false)
     private Long routeId;
 

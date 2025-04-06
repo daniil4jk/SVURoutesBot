@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
@@ -12,7 +11,7 @@ import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Route;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.EventEntity;
-import ru.daniil4jk.svuroutes.tgbot.db.service.assets.EventService;
+import ru.daniil4jk.svuroutes.tgbot.expected.DefaultExpectedEvent;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.EventsKeyboard;
@@ -21,8 +20,6 @@ import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.RoutesListKeyboard;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 @Slf4j
 @Component
@@ -33,7 +30,7 @@ public class CreateEventCmd extends ProtectedBotCommand {
     private EventsKeyboard eventsKeyboard;
 
     public CreateEventCmd() {
-        super("createbynum", "create new event by route id");
+        super("createevent", "create new event by route id");
     }
 
     /**
@@ -47,135 +44,137 @@ public class CreateEventCmd extends ProtectedBotCommand {
         super(commandIdentifier, description);
     }
 
+    private static final String CANCEL_TRIGGER = "Отменить";
+    private static final String CANCEL_MESSAGE = "Создание ивента успешно отменено";
+
     @Override
-    public void protectedExecute(AbsSender absSender, long chatId, String[] strings) {
-        try {
-            Route route = Objects.requireNonNull(getRouteMap().get(Long.parseLong(strings[0])));
-            Calendar c = GregorianCalendar.getInstance();
-            AtomicLong aChatId = new AtomicLong(chatId);
-            getMessageService().addExpectedEvent(aChatId.get(),
-                    new GetMonthInput(aChatId, c, "Введите название месяца, " +
-                            "в котором будет проходить событие",
-            () -> getMessageService().addExpectedEvent(aChatId.get(),
-                    new GetNumberEvent(aChatId, Calendar.DAY_OF_MONTH, c, 31,
-                            "Введите день, в который будет проходить событие",
-            () -> getMessageService().addExpectedEvent(aChatId.get(),
-                    new GetNumberEvent(aChatId, Calendar.HOUR_OF_DAY, c, 24,
-                            "Введите, в котором часу будет проходить событие, в 24-часовом формате",
-            () -> getMessageService().addExpectedEvent(aChatId.get(),
-                    new GetNumberEvent(aChatId, Calendar.MINUTE, c, 60,
-                            "Введите, на какой минуте часа событие начнется",
-            () -> getQueryService().addExpectedEvent(aChatId.get(),
-                    new ConfirmEvent(aChatId,(SimpleExecuter) absSender
-                            , getEventService(), route, c, eventsKeyboard))))))))));
-        } catch (NumberFormatException e) {
-            log.error(e.getLocalizedMessage(), e);
-        }
+    protected void protectedExecute(AbsSender absSender, long chatId, String[] strings) {
+        Route route = Objects.requireNonNull(getRouteMap().get(Long.parseLong(strings[0])));
+        EventEntity event = new EventEntity();
+        event.setRouteId(route.getId());
+        Calendar c = GregorianCalendar.getInstance();
+        getMessageService().addExpectedEvent(chatId,
+            getMonth(c, chatId,
+                getDay(c, chatId,
+                    getHour(c, chatId,
+                        getMinute(c, chatId,
+                            getGuideName(event, chatId,
+                                getMaxUsers(event, chatId,
+                                        confirmEvent((SimpleExecuter) absSender, event, c, chatId))))))));
     }
 
-
-    private static class GetSomethingEvent extends ExpectedEvent<Message> {
-
-        public GetSomethingEvent(AtomicLong chatId, Consumer<String> setter,
-                                 String notification, Runnable addNext) {
-            super(m -> {
-                if (m.getChatId() != chatId.get()) chatId.set(m.getChatId());
-                setter.accept(m.getText());
-                addNext.run();
-            });
-            var getDateMessage = SendMessage.builder().text(notification).chatId(chatId.get()).build();
-            firstNotification(getDateMessage);
-            notification(getDateMessage);
-            onException(e -> SendMessage.builder()
-                    .text(e.getLocalizedMessage()).chatId(chatId.get()).build());
-            removeOnException(false);
-        }
-    }
-
-    private static class GetNumberEvent extends GetSomethingEvent {
-        public GetNumberEvent(AtomicLong chatId, int calendarConst, Calendar c,
-                              int maxValue, String notification, Runnable addNext) {
-            super(chatId, t -> {
-                try {
-                    int value = Integer.parseInt(t);
-                    if (value < 0) throw new IllegalArgumentException(
-                            "Значение этого параметра не может быть меньше 0");
-                    if (value > maxValue) throw new IllegalArgumentException(
-                            "Значение этого параметра не должно быть больше " + maxValue);
-                    c.set(calendarConst, value);
-                } catch (NumberFormatException e) {
-                    throw new NumberFormatException("Введите только число, без лишних букв и символов");
-                }
-            }, notification, addNext);
-        }
-    }
-
-    private static class GetMonthInput extends GetSomethingEvent {
-        private static final String[] monthNames =
+    private ExpectedEvent<Message> getMonth(Calendar c, long chatId, ExpectedEvent<Message> next) {
+        String[] monthNames =
                 new String[]{"январь", "февраль", "март",
                         "апрель", "май", "июнь",
                         "июль", "август", "сентябрь",
                         "октябрь", "ноябрь", "декабрь"};
 
-        public GetMonthInput(AtomicLong chatId, Calendar c,
-                             String notification, Runnable addNext) {
-            super(chatId, s -> {
-                int monthNumber = ArrayUtils.indexOf(monthNames, s.toLowerCase());
-                if (monthNumber == -1) throw new IllegalArgumentException(
-                        "Введите название месяца, например \"октябрь\"");
-                c.set(Calendar.MONTH, monthNumber);
-            }, notification, addNext);
+        String notification = "Введите название месяца, в котором будет проходить событие";
+        return new DefaultExpectedEvent<>(notification,
+                m -> {
+                    int monthNumber = ArrayUtils.indexOf(monthNames, m.getText().toLowerCase());
+                    if (monthNumber == -1) throw new IllegalArgumentException(
+                            "Введите название месяца, например \"октябрь\"");
+                    c.set(Calendar.MONTH, monthNumber);
+                    getMessageService().addExpectedEvent(chatId, next);
+                },
+                CANCEL_TRIGGER,
+                CANCEL_MESSAGE,
+                chatId);
+    }
+
+    private static class GetCalendarNumberEvent extends DefaultExpectedEvent<Message>{
+        public GetCalendarNumberEvent(String notification, Calendar c, long chatId,
+                                      int calendarConst, int maxValue, Runnable addNext) {
+            super(notification,
+                    m -> {
+                        try {
+                            int value = Integer.parseInt(m.getText());
+                            if (value < 0) throw new IllegalArgumentException(
+                                    "Значение этого параметра не может быть меньше 0");
+                            if (value > maxValue) throw new IllegalArgumentException(
+                                    "Значение этого параметра не должно быть больше " + maxValue);
+                            c.set(calendarConst, value);
+                            addNext.run();
+                        } catch (NumberFormatException e) {
+                            throw new NumberFormatException("Введите только число, без лишних букв и символов");
+                        }
+                    },
+            CANCEL_TRIGGER,
+            CANCEL_MESSAGE,
+            chatId);
         }
     }
 
-    private static class ConfirmEvent extends ExpectedEvent<CallbackQuery> {
-        private static final String[] monthNames =
-                new String[]{"январе", "феврале", "марте",
-                        "апреле", "мае", "июне",
-                        "июле", "августе", "сентябре",
-                        "октябре", "ноябре", "декабре"};
+    private ExpectedEvent<Message> getDay(Calendar c, long chatId, ExpectedEvent<Message> next) {
+        String notification = "Введите день, в который будет проходить событие";
+        return new GetCalendarNumberEvent(notification, c, chatId,
+                Calendar.DAY_OF_MONTH, 31,
+                () -> getMessageService().addExpectedEvent(chatId, next));
+    }
 
-        public ConfirmEvent(AtomicLong chatId, SimpleExecuter executer,
-                            EventService service, Route route, Calendar calendar,
-                            EventsKeyboard keyboardToUpdate) {
+    private ExpectedEvent<Message> getHour(Calendar c, long chatId, ExpectedEvent<Message> next) {
+        String notification = "Введите, в котором часу будет проходить событие, в 24-часовом формате";
+        return new GetCalendarNumberEvent(notification, c, chatId,
+                Calendar.HOUR_OF_DAY, 24,
+                () -> getMessageService().addExpectedEvent(chatId, next));
+    }
 
-            super(q -> {
-                if (String.valueOf(true).equals(q.getData())) {
+    private ExpectedEvent<Message> getMinute(Calendar c, long chatId, ExpectedEvent<Message> next) {
+        String notification = "Введите, на какой минуте часа событие начнется";
+        return new GetCalendarNumberEvent(notification, c, chatId,
+                Calendar.MINUTE, 60,
+                () -> getMessageService().addExpectedEvent(chatId, next));
+    }
 
-                    EventEntity newEntity = service.createNew(route.getId(), calendar.getTime(),
-                            null, 1);
+    private ExpectedEvent<Message> getGuideName(EventEntity event, long chatId, ExpectedEvent<Message> next) {
+        String notification = "Введите ФИО экскурсовода";
+        return new DefaultExpectedEvent<>(notification,
+                m -> {
+                    event.setGuideName(m.getText());
+                    getMessageService().addExpectedEvent(chatId, next);
+                },
+                CANCEL_TRIGGER,
+                CANCEL_MESSAGE,
+                chatId);
+    }
+
+    private ExpectedEvent<Message> getMaxUsers(EventEntity event, long chatId, ExpectedEvent<CallbackQuery> next) {
+        String notification = "Введите максимальное количество посетителей на экскурсии";
+        return new DefaultExpectedEvent<>(notification,
+                m -> {
+                    try {
+                        event.setMaxUsers(Integer.parseInt(m.getText().trim()));
+                    } catch (NumberFormatException e) {
+                        throw new NumberFormatException("Введено не число, либо по каким-то причинам мы " +
+                                "не можем прочитать это число. Проверьте чтобы между цифрами не было пробелов");
+                    }
+                    getQueryService().addExpectedEvent(chatId, next);
+                },
+                CANCEL_TRIGGER,
+                CANCEL_MESSAGE,
+                chatId);
+    }
+
+    private ExpectedEvent<CallbackQuery> confirmEvent(SimpleExecuter executer, EventEntity event,
+                                                      Calendar c, long chatId) {
+        event.setDate(c.getTime());
+
+        String notification = "Введите максимальное количество посетителей на экскурсии";
+        return new DefaultExpectedEvent<>(notification,
+                q -> {
+                    if (!BooleanInlineKeyboard.Data.TRUE.equals(q.getData())) {
+                        throw new IllegalArgumentException("Вы создаете событие. Выберите \"Все так\" или \"отменить\"");
+                    }
+
+                    EventEntity newEntity = getEventService().save(event);
                     executer.sendSimpleTextMessage(
-                            "Событие успешно добавлено", chatId.get());
-                    keyboardToUpdate.add(newEntity);
-
-                } else if (String.valueOf(false).equals(q.getData())) {
-                    executer.sendSimpleTextMessage(
-                            "Добавление события успешно отменено", chatId.get());
-                } else {
-                    throw new IllegalArgumentException("Выберите \"Все так\" или \"отменить\"");
-                }
-            });
-
-            var notification = SendMessage.builder()
-                    .text(String.format("""
-                                    Вы хотите создать событие с:
-                                    Маршрутом - %s
-                                    В %s
-                                    %d числа
-                                    В %d часов, %d минут
-                                    """, route.getName(),
-                            monthNames[calendar.get(Calendar.MONTH)],
-                            calendar.get(Calendar.DAY_OF_MONTH),
-                            calendar.get(Calendar.HOUR_OF_DAY),
-                            calendar.get(Calendar.MINUTE)))
-                    .chatId(chatId.get())
-                    .replyMarkup(new BooleanInlineKeyboard("Все так", "Отменить"))
-                    .build();
-            firstNotification(notification);
-            notification(notification);
-            onException(e -> SendMessage.builder()
-                    .text(e.getLocalizedMessage()).chatId(chatId.get()).build());
-            removeOnException(false);
-        }
+                            "Событие успешно добавлено", chatId);
+                    eventsKeyboard.add(newEntity);
+                },
+                BooleanInlineKeyboard.Data.FALSE,
+                "Добавление события успешно отменено",
+                chatId);
     }
 }

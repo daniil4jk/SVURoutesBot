@@ -81,9 +81,9 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
         })
         .firstNotification(message)
         .notification(message)
-                .onException(e -> SendMessage.builder()
-                        .text(e.getLocalizedMessage())
-                        .chatId(chatId).build())
+        .onException(e -> SendMessage.builder()
+                  .text(e.getLocalizedMessage())
+                  .chatId(chatId).build())
         .removeOnException(false);
     }
 
@@ -121,7 +121,8 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
         })
         .notification(message)
         .onException(e -> SendMessage.builder()
-                .text(e.getLocalizedMessage()).chatId(chatId).build())
+                .text(e.getLocalizedMessage())
+                .chatId(chatId).build())
         .removeOnException(false);
     }
 
@@ -130,9 +131,8 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
         var message = SendMessage.builder().text(classMessage).chatId(chatId).build();
 
         return new ExpectedEvent<Message>(m -> {
-            int classNumber;
             try {
-                classNumber = Integer.parseInt(m.getText());
+                int classNumber = Integer.parseInt(m.getText());
                 if (classNumber < 1 || classNumber > 11) throw new IllegalArgumentException("Такого класса не существует");
                 request.setClassNumber(classNumber);
                 getMessageService().addExpectedEvent(chatId, getSchool(chatId, executer, request));

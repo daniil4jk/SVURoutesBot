@@ -16,7 +16,7 @@ public class CancelReplyKeyboard extends ReplyKeyboardMarkup {
     {
         setSelective(true);
         setResizeKeyboard(true);
-        setOneTimeKeyboard(false);
+        setOneTimeKeyboard(true);
         setKeyboard(keyboard);
     }
 
