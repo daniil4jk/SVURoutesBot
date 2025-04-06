@@ -1,7 +1,6 @@
 package ru.daniil4jk.svuroutes.tgbot.command.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -11,15 +10,14 @@ import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ServiceIntegratedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.DefaultKeyboardService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.CancelReplyKeyboard;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.DefaultKeyboard;
 
 @Component
 public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
     @Autowired
-    @Qualifier("defaultKeyboard")
-    private DefaultKeyboard defaultKeyboard;
+    private DefaultKeyboardService keyboardService;
 
     /**
      * Construct a command
@@ -87,7 +85,7 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
                             .text(String.format("Предложение с номером %d успешно добавлено",
                                     acceptedSuggestion.getId()))
                             .chatId(q.getMessage().getChatId())
-                            .replyMarkup(defaultKeyboard)
+                            .replyMarkup(keyboardService.getKeyboardByStatus(chatId))
                             .build());
 
             executer.sendSimpleTextMessage(

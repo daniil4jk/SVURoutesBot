@@ -2,7 +2,6 @@ package ru.daniil4jk.svuroutes.tgbot.command.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.BotCommand;
@@ -16,11 +15,11 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.MessageEntry;
+import ru.daniil4jk.svuroutes.tgbot.db.entity.UserEntity;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.DefaultKeyboardService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.DynamicKeyboardDataHandler;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.StaticKeyboardDataHandler;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.AdminKeyboard;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.DefaultKeyboard;
 
 import java.util.Map;
 import java.util.Objects;
@@ -33,10 +32,7 @@ public class StartCmd extends BotCommand {
     private static final CommandData messageName = CommandData.START;
 
     @Autowired
-    @Qualifier("defaultKeyboard")
-    private DefaultKeyboard keyboard;
-    @Autowired
-    private AdminKeyboard adminKeyboard;
+    private DefaultKeyboardService keyboardService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -66,24 +62,20 @@ public class StartCmd extends BotCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         if (userService.contains(chat.getId())) {
-            var userEntity = userService.get(chat.getId());
+            UserEntity userEntity = userService.get(chat.getId());
             if (!Objects.equals(user.getUserName(),
                     userEntity.getUsername())) {
                 userService.update(chat.getId(), u ->
                     u.setUsername(user.getUserName())
                 );
             }
-
-            if (userEntity.isAdmin()) {
-                executeWithKeyboard(absSender, chat.getId(), adminKeyboard);
-            } else {
-                executeWithKeyboard(absSender, chat.getId(), keyboard);
-                log.info("Somebody used \"/start\" command");
-            }
+            executeWithKeyboard(absSender, chat.getId(),
+                    keyboardService.getKeyboardByStatus(userEntity));
         } else {
             userService.createNew(chat.getId(), user);
             log.info("We have a new user!");
         }
+        log.info("Somebody used \"/start\" command");
 
         if (strings.length > 0) {
             sheduledExecutor.schedule(
@@ -94,7 +86,6 @@ public class StartCmd extends BotCommand {
 
     //copied from staticCommand
     public void executeWithKeyboard(AbsSender absSender, long chatId, ReplyKeyboard keyboard) {
-        if (keyboard == null) keyboard = this.keyboard;
         var message = messageMap.get(messageName);
         try {
             if (message.getImage().isPresent() && message.getVideo().isPresent()) {

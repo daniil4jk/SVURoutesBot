@@ -2,7 +2,6 @@ package ru.daniil4jk.svuroutes.tgbot.bot;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -18,9 +17,9 @@ import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandService;
 import ru.daniil4jk.svuroutes.tgbot.expected.handlers.ExpectedCallbackQueryHandler;
 import ru.daniil4jk.svuroutes.tgbot.expected.handlers.ExpectedMessageHandler;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.DefaultKeyboardService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.DynamicKeyboardDataHandler;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.StaticKeyboardDataHandler;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.DefaultKeyboard;
 
 import java.io.Serializable;
 
@@ -38,8 +37,7 @@ public class Bot extends MultithreadingLongPollingCommandBot implements SimpleEx
     @Autowired @Lazy
     private StaticKeyboardDataHandler staticKeyboardDataHandler;
     @Autowired @Lazy
-    @Qualifier("defaultKeyboard")
-    private DefaultKeyboard defaultKeyboard;
+    private DefaultKeyboardService keyboardService;
 
     public Bot(BotConfig config, CommandService commandService) {
         super(config.getToken());
@@ -90,7 +88,7 @@ public class Bot extends MultithreadingLongPollingCommandBot implements SimpleEx
         nonExceptionExecute(SendMessage.builder()
                 .text("Я не понимаю вашу команду, пожалуйста, напишите по другому")
                 .chatId(chatId)
-                .replyMarkup(defaultKeyboard)
+                .replyMarkup(keyboardService.getKeyboardByStatus(chatId))
                 .build());
     }
 

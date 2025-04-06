@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import ru.daniil4jk.svuroutes.tgbot.bot.Bot;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandService;
-import ru.daniil4jk.svuroutes.tgbot.command.admin.AddAdminCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.admin.AdminPanelCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.admin.CreateEventsCmd;
+import ru.daniil4jk.svuroutes.tgbot.command.admin.GiveAdminCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.admin.ReviewRequestsCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.user.*;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.assets.AbstractKeyboardDataHandler;
@@ -22,6 +22,7 @@ public class StaticKeyboardDataHandler extends AbstractKeyboardDataHandler {
     @Autowired
     private CommandService commands;
 
+    //todo: change onlyText to recieveNums and revert booleans
     @Override
     public boolean canAccept(String text, boolean onlyText) {
         if (onlyText) return CommandData.contains(text);
@@ -56,7 +57,7 @@ public class StaticKeyboardDataHandler extends AbstractKeyboardDataHandler {
             case ADMIN_REQUESTS -> commands.getCommand(ReviewRequestsCmd.class).execute(bot, chatId, emptyStringArray);
             case ADMIN_CREATE_EVENTS -> commands.getCommand(CreateEventsCmd.class).execute(bot, chatId, emptyStringArray);
             case ADMIN_PANEL -> commands.getCommand(AdminPanelCmd.class).execute(bot, chatId, emptyStringArray);
-            case GIVE_ADMIN -> commands.getCommand(AddAdminCmd.class).execute(bot, chatId, emptyStringArray);
+            case GIVE_ADMIN -> commands.getCommand(GiveAdminCmd.class).execute(bot, chatId, emptyStringArray);
             case REQUESTS -> commands.getCommand(RequestsListCmd.class).execute(bot, chatId, emptyStringArray);
             case ADD_SUGGESTION -> commands.getCommand(AddSuggestionCmd.class).execute(bot, chatId, emptyStringArray);
             default -> bot.weDontKnowWhatThisIs(chatId);

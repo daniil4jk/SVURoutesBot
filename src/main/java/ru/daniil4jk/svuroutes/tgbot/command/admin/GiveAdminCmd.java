@@ -10,17 +10,18 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
+import ru.daniil4jk.svuroutes.tgbot.db.entity.UserEntity;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.AdminKeyboard;
 
 @Slf4j
 @Component
-public class AddAdminCmd extends ProtectedBotCommand {
+public class GiveAdminCmd extends ProtectedBotCommand {
     @Autowired
     private AdminKeyboard adminKeyboard;
 
-    public AddAdminCmd() {
+    public GiveAdminCmd() {
         super("addadmin", "add administrator rules");
         setOnlyAdminAccess(true);
     }
@@ -32,7 +33,7 @@ public class AddAdminCmd extends ProtectedBotCommand {
      *                          enter into chat)
      * @param description       the description of this command
      */
-    public AddAdminCmd(String commandIdentifier, String description) {
+    public GiveAdminCmd(String commandIdentifier, String description) {
         super(commandIdentifier, description);
         setOnlyAdminAccess(true);
     }
@@ -61,22 +62,23 @@ public class AddAdminCmd extends ProtectedBotCommand {
         .removeOnException(false);
     }
 
-    private ExpectedEvent<CallbackQuery> setAdmin(SimpleExecuter executer, long chatId, String userName) {
+    private ExpectedEvent<CallbackQuery> setAdmin(SimpleExecuter executer, long chatId, final String username) {
         SendMessage notification = SendMessage.builder()
-                .text("Вы точно хотите дать " + userName + " права АДМИНИСТРАТОРА? Он получит ТЕ ЖЕ ПРАВА что и вы! " +
+                .text("Вы точно хотите дать " + username + " права АДМИНИСТРАТОРА? Он получит ТЕ ЖЕ ПРАВА что и вы! " +
                                 "(вы не можете дать права администратора пользователю, еще не заходившему в бот ни разу)")
                 .replyMarkup(new BooleanInlineKeyboard("Да, я хочу это сделать", "Нет"))
                 .chatId(chatId)
                 .build();
 
         return new ExpectedEvent<CallbackQuery>(q -> {
-            String username = userName;
-            username = username.replace("@", "");
-            var user = getUserService().getByUsername(username);
-            getUserService().update(user, u -> u.setAdmin(true));
+            String usernameWithoutTag = username.replace("@", "");
+            UserEntity user = getUserService().getByUsername(usernameWithoutTag);
+            user.setAdmin(true);
+            user = getUserService().save(user);
+
             executer.sendSimpleTextMessage(
-                    String.format("Пользователь: %s теперь имеет права администратора!",
-                            username), q.getMessage().getChatId());
+                    "Пользователь: " + username + " теперь имеет права администратора!",
+                    q.getMessage().getChatId());
             executer.nonExceptionExecute(SendMessage.builder()
                     .text("Вы теперь администратор")
                     .chatId(user.getId())
@@ -87,7 +89,7 @@ public class AddAdminCmd extends ProtectedBotCommand {
         .notification(notification)
         .onException(e -> SendMessage.builder()
                 .text("No value present".equals(e.getLocalizedMessage()) ?
-                        "Этот пользователь еще не зарегистрирован в боте" :
+                        "Этот пользователь еще не заходил в бота ни разу" :
                         e.getLocalizedMessage())
                 .chatId(chatId)
                 .build())
