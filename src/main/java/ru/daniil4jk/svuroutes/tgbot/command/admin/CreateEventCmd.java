@@ -232,6 +232,11 @@ public class CreateEventCmd extends StaticCommand {
     private ExpectedEvent<CallbackQuery> confirmEvent(SimpleExecuter executer, EventEntity event,
                                                       Calendar c, long chatId) {
          event.setDate(c.getTime());
+         event.setName(
+                 getRouteMap().get(event.getRouteId()).getName() + "-" +
+                         getDotMap().get(event.getDotId()).getName()
+         );
+
          SendMessage notification = SendMessage.builder()
                  .text(String.format("""
                          Проверьте все ли верно, и подтвердите создание экскурсии
