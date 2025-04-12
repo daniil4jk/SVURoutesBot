@@ -6,21 +6,19 @@ import org.springframework.stereotype.Component;
 import ru.daniil4jk.svuroutes.tgbot.bot.Bot;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandService;
-import ru.daniil4jk.svuroutes.tgbot.command.admin.CreateEventCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.admin.RemoveEventCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.user.*;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.assets.AbstractKeyboardDataHandler;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.assets.AbstractKeyboardCmdCallHandler;
 
 @Setter
 @Component
-public class DynamicKeyboardDataHandler extends AbstractKeyboardDataHandler {
+public class KeyboardDynamicCmdCallHandler extends AbstractKeyboardCmdCallHandler {
     @Autowired
     private Bot bot;
     @Autowired
     private CommandService commands;
 
     public boolean canAccept(String text, boolean onlyText) {
-        text = text.trim();
         try {
             CommandData prefix = getPrefix(text);
             String prefixText = (!startsWithNumber(text) || onlyText) ?
@@ -56,7 +54,6 @@ public class DynamicKeyboardDataHandler extends AbstractKeyboardDataHandler {
             case ROUTE -> commands.getCommand(RouteCmd.class).execute(bot, chatId, args);
             case REGISTER -> commands.getCommand(RegisterCmd.class).execute(bot, chatId, args);
             case EVENT -> commands.getCommand(EventCmd.class).execute(bot, chatId, args);
-            case ADMIN_CREATE_EVENT -> commands.getCommand(CreateEventCmd.class).execute(bot, chatId, args);
             case ADMIN_REMOVE_EVENT -> commands.getCommand(RemoveEventCmd.class).execute(bot, chatId, args);
             case REQUEST -> commands.getCommand(RequestCmd.class).execute(bot, chatId, args);
             default -> bot.weDontKnowWhatThisIs(chatId);

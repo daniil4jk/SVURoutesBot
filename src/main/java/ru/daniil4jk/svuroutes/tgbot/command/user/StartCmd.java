@@ -18,8 +18,8 @@ import ru.daniil4jk.svuroutes.tgbot.content.DTO.MessageEntry;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.UserEntity;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.DefaultKeyboardService;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.DynamicKeyboardDataHandler;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.StaticKeyboardDataHandler;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.KeyboardDynamicCmdCallHandler;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.KeyboardStaticCmdCallHandler;
 
 import java.util.Map;
 import java.util.Objects;
@@ -38,9 +38,9 @@ public class StartCmd extends BotCommand {
     @Autowired
     private Map<CommandData, MessageEntry> messageMap;
     @Autowired @Lazy
-    private StaticKeyboardDataHandler staticHandler;
+    private KeyboardStaticCmdCallHandler staticHandler;
     @Autowired @Lazy
-    private DynamicKeyboardDataHandler dynamicHandler;
+    private KeyboardDynamicCmdCallHandler dynamicHandler;
     @Autowired
     private ScheduledThreadPoolExecutor sheduledExecutor;
 

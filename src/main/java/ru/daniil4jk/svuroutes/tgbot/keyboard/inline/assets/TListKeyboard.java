@@ -1,10 +1,12 @@
 package ru.daniil4jk.svuroutes.tgbot.keyboard.inline.assets;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.KeyboardConfig;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.assets.KeyboardCmdCallHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,23 +14,47 @@ import java.util.List;
 
 @Slf4j
 public abstract class TListKeyboard<T> extends InlineKeyboardMarkup {
-    public final byte maxButtonsInRow;
+    @JsonIgnore
+    private final KeyboardConfig config;
+    @JsonIgnore
+    private final Integer commandId;
+    @JsonIgnore
     private final Collection<T> ts;
-    private final CommandData data;
+
+    public TListKeyboard(Collection<T> ts, KeyboardConfig config) {
+        this.config = config;
+        this.ts = ts;
+        commandId = null;
+        fill();
+    }
 
     public TListKeyboard(Collection<T> ts, CommandData data, KeyboardConfig config) {
-        maxButtonsInRow = config.getMaxButtonsInRow();
+        this.config = config;
         this.ts = ts;
-        this.data = data;
+        commandId = data.getId();
+        fill();
+    }
+
+    public TListKeyboard(Collection<T> ts, int commandId, KeyboardConfig config) {
+        this.config = config;
+        this.ts = ts;
+        this.commandId = commandId;
         fill();
     }
 
     private void fill() {
+        String prefix;
+        if (commandId == null) {
+            prefix = "";
+        } else {
+            prefix = KeyboardCmdCallHandler.commandPrefix + commandId + "_";
+        }
+
         InlineKeyboardButton[] buttons = new InlineKeyboardButton[ts.size()];
         int i = 0;
         for (T t : ts) {
             buttons[i] = new InlineKeyboardButton(getName(t));
-            buttons[i].setCallbackData(data.getId() + "_" + getId(t));
+            buttons[i].setCallbackData(prefix + getId(t));
             i++;
         }
         setKeyboard(structure(buttons));
@@ -41,7 +67,7 @@ public abstract class TListKeyboard<T> extends InlineKeyboardMarkup {
         for (InlineKeyboardButton button : buttons) {
             keyboard.get(keyboard.size() - 1).add(button);
             buttonsInRow++;
-            if (buttonsInRow == maxButtonsInRow) {
+            if (buttonsInRow == config.getMaxButtonsInRow()) {
                 buttonsInRow = 0;
                 keyboard.add(new ArrayList<>());
             }

@@ -7,16 +7,12 @@ import java.util.function.Consumer;
 
 public class DefaultExpectedEvent<T> extends ExpectedEvent<T> {
 
-    public DefaultExpectedEvent(String notification,
+    public DefaultExpectedEvent(SendMessage notification,
                                 Consumer<T> setter,
                                 long chatId) {
         super(setter);
-        var message = SendMessage.builder()
-                .text(notification)
-                .chatId(chatId)
-                .build();
-        firstNotification(message);
-        notification(message);
+        firstNotification(notification);
+        notification(notification);
         onException(e -> SendMessage.builder()
                 .text(e.getLocalizedMessage())
                 .chatId(chatId)
@@ -26,10 +22,20 @@ public class DefaultExpectedEvent<T> extends ExpectedEvent<T> {
 
     public DefaultExpectedEvent(String notification,
                                 Consumer<T> setter,
+                                long chatId) {
+        this(SendMessage.builder()
+                    .text(notification)
+                    .chatId(chatId)
+                    .build(),
+                setter, chatId);
+    }
+
+    public DefaultExpectedEvent(String notification,
+                                Consumer<T> setter,
                                 String cancelTriggerText,
                                 String cancelText,
                                 long chatId) {
-        super(setter);
+        this(notification, setter, chatId);
         var message = SendMessage.builder()
                 .text(notification)
                 .chatId(chatId)
@@ -37,11 +43,6 @@ public class DefaultExpectedEvent<T> extends ExpectedEvent<T> {
                 .build();
         firstNotification(message);
         notification(message);
-        onException(e -> SendMessage.builder()
-                .text(e.getLocalizedMessage())
-                .chatId(chatId)
-                .build());
-        removeOnException(false);
         cancelTrigger(cancelTriggerText);
         cancelText(cancelText);
     }

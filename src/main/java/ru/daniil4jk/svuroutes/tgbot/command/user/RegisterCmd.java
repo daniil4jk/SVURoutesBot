@@ -133,7 +133,9 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
         return new ExpectedEvent<Message>(m -> {
             try {
                 int classNumber = Integer.parseInt(m.getText());
-                if (classNumber < 1 || classNumber > 11) throw new IllegalArgumentException("Такого класса не существует");
+                if (classNumber < 1 || classNumber > 11) {
+                    throw new IllegalArgumentException("Такого класса не существует");
+                }
                 request.setClassNumber(classNumber);
                 getMessageService().addExpectedEvent(chatId, getSchool(chatId, executer, request));
             } catch (NumberFormatException e) {

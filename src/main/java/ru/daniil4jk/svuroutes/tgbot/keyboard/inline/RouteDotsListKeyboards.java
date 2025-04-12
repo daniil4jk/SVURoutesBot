@@ -12,8 +12,7 @@ import java.util.Map;
 @Configuration
 public class RouteDotsListKeyboards {
     @Bean
-    public Map<Route, DotsListKeyboard>
-    routeDotsListKeyboard(Collection<Route> routes, KeyboardConfig config) {
+    public Map<Route, DotsListKeyboard> routeDotsListKeyboard(Collection<Route> routes, KeyboardConfig config) {
         Map<Route, DotsListKeyboard> result = new HashMap<>();
         for (Route route : routes) {
             result.put(route, new DotsListKeyboard(route.getDots(), config, false));

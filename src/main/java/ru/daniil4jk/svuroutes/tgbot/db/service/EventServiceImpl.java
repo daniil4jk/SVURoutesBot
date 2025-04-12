@@ -43,9 +43,9 @@ public class EventServiceImpl implements EventService {
         return contains(eventEntity.getId());
     }
 
-    public EventEntity createNew(long routeId, Date end, String tourGuide, int maxUsers) {
+    public EventEntity createNew(long routeId, long dotId, Date end, String tourGuide, int maxUsers) {
         return save(new EventEntity(null, routes.get(routeId).getName(),
-                new ArrayList<>(), maxUsers, end, tourGuide, routeId));
+                new ArrayList<>(), maxUsers, end, tourGuide, routeId, dotId));
     }
 
     @Override

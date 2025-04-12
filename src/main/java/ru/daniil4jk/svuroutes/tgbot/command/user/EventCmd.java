@@ -10,7 +10,6 @@ import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ServiceIntegratedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.EventKeyboard;
 
-import java.util.Date;
 import java.util.NoSuchElementException;
 
 @Slf4j
@@ -35,7 +34,7 @@ public class EventCmd extends ServiceIntegratedBotCommand {
     public void execute(AbsSender absSender, long chatId, String[] strings) {
         try {
             var event = getEventService().get(Long.parseLong(strings[0]));
-            var timeToEvent = getTime(event.getDate());
+            var timeToEvent = event.getTimeBefore();
             var user = getUserService().get(chatId);
             absSender.execute(SendMessage.builder()
                     .chatId(chatId)
@@ -46,7 +45,7 @@ public class EventCmd extends ServiceIntegratedBotCommand {
                             %d дней
                             %d часов
                             %d минут
-                            """, timeToEvent[0], timeToEvent[1], timeToEvent[2]))
+                            """, timeToEvent.getDays(), timeToEvent.getHours(), timeToEvent.getMins()))
                     .replyMarkup(new EventKeyboard(event, user))
                     .build());
         } catch (TelegramApiException e) {
@@ -55,23 +54,5 @@ public class EventCmd extends ServiceIntegratedBotCommand {
             SimpleExecuter executer = (SimpleExecuter) absSender;
             executer.sendSimpleTextMessage("Экскурсии с таким id не существует", chatId);
         }
-    }
-
-    private static final long millsInDay = 1000 * 60 * 60 * 24;
-    private static final long millsInHour = 1000 * 60 * 60;
-    private static final long millsInMin = 1000 * 60;
-
-    private int[] getTime (Date date) {
-        long eventTime = date.getTime();
-        long currentTime = System.currentTimeMillis();
-        long difference = eventTime - currentTime;
-
-        int days = Math.toIntExact(Math.floorDiv(difference, millsInDay));
-        difference -= days * millsInDay;
-        int hours = Math.toIntExact(Math.floorDiv(difference, millsInHour));
-        difference -= hours * millsInHour;
-        int mins = Math.toIntExact(Math.floorDiv(difference, millsInMin));
-
-        return new int[]{days, hours, mins};
     }
 }

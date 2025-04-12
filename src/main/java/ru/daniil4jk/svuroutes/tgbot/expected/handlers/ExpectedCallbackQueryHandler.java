@@ -6,6 +6,7 @@ import ru.daniil4jk.svuroutes.tgbot.expected.handlers.assets.ExpectedHandlerAbst
 
 @Component
 public class ExpectedCallbackQueryHandler extends ExpectedHandlerAbstractImpl<CallbackQuery> {
+
     @Override
     public long getChatId(CallbackQuery callbackQuery) {
         return callbackQuery.getMessage().getChatId();

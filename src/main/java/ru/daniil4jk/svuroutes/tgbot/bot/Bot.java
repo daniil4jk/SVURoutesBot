@@ -18,8 +18,8 @@ import ru.daniil4jk.svuroutes.tgbot.command.CommandService;
 import ru.daniil4jk.svuroutes.tgbot.expected.handlers.ExpectedCallbackQueryHandler;
 import ru.daniil4jk.svuroutes.tgbot.expected.handlers.ExpectedMessageHandler;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.DefaultKeyboardService;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.DynamicKeyboardDataHandler;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.StaticKeyboardDataHandler;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.KeyboardDynamicCmdCallHandler;
+import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.KeyboardStaticCmdCallHandler;
 
 import java.io.Serializable;
 
@@ -33,9 +33,9 @@ public class Bot extends MultithreadingLongPollingCommandBot implements SimpleEx
     @Autowired @Lazy
     private ExpectedCallbackQueryHandler expectedCallbackQueryHandler;
     @Autowired @Lazy
-    private DynamicKeyboardDataHandler dynamicKeyboardDataHandler;
+    private KeyboardDynamicCmdCallHandler dynamicKeyboardDataHandler;
     @Autowired @Lazy
-    private StaticKeyboardDataHandler staticKeyboardDataHandler;
+    private KeyboardStaticCmdCallHandler staticKeyboardDataHandler;
     @Autowired @Lazy
     private DefaultKeyboardService keyboardService;
 

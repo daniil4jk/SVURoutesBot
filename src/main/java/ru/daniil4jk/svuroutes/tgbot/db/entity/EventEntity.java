@@ -36,6 +36,8 @@ public class EventEntity {
     private String guideName;
     @Column(name = "route_id", nullable = false)
     private Long routeId;
+    @Column(name = "dot_id")
+    private Long dotId;
 
     @PrePersist
     @PreUpdate
@@ -57,6 +59,10 @@ public class EventEntity {
         return count;
     }
 
+    public TimeBefore getTimeBefore() {
+        return TimeBefore.of(date);
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
@@ -73,3 +79,4 @@ public class EventEntity {
         return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }
+
