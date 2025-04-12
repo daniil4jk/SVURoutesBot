@@ -239,6 +239,7 @@ public class CreateEventCmd extends StaticCommand {
                          Название маршрута: %s
                          Название точки: %s
                          Имя экскурсовода: %s
+                         Максимальное количество посетителей: %d
                          """,
                          c.get(Calendar.DAY_OF_MONTH),
                          monthNames2[c.get(Calendar.MONTH)],
@@ -246,8 +247,10 @@ public class CreateEventCmd extends StaticCommand {
                          c.get(Calendar.MINUTE),
                          getRouteMap().get(event.getRouteId()).getName(),
                          getDotMap().get(event.getDotId()).getName(),
-                         event.getGuideName()
-                         ))
+                         event.getGuideName(),
+                         event.getMaxUsers()
+                         )
+                 )
                  .replyMarkup(new BooleanInlineKeyboard("Все верно", "Отменить"))
                  .chatId(chatId)
                  .build();
