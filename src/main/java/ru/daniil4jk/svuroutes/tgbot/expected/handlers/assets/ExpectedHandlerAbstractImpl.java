@@ -28,6 +28,7 @@ public abstract class ExpectedHandlerAbstractImpl<T> implements ExpectedHandler<
     @Override
     public void accept(T t) {
         long id = getChatId(t);
+        int stackSizeBeforeEventRunning = expectedService.getStackSize(id);
         var event = expectedService.getLastExpectedEvent(id);
         String content = getContent(t);
         if (Objects.equals(content, event.getCancelTrigger()) &&
@@ -53,11 +54,17 @@ public abstract class ExpectedHandlerAbstractImpl<T> implements ExpectedHandler<
                 expectedService.removeEvent(id, event);
             }
         } finally {
-            if (hasEvent(id)) {
+            if (hasEvent(id) &&
+                    !eventAddedNewOne(stackSizeBeforeEventRunning, expectedService.getStackSize(id))) {
                 var message = expectedService.getLastExpectedEvent(id).getNotification();
                 bot.nonExceptionExecute(message);
             }
         }
+    }
+
+    private boolean eventAddedNewOne(int stackSizeBeforeEventRunning,
+                                     int stackSizeAfterEventRunning) {
+        return stackSizeBeforeEventRunning == stackSizeAfterEventRunning;
     }
 
     @Override

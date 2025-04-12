@@ -51,6 +51,10 @@ public abstract class ExpectedSomethingService<T> {
         }
     }
 
+    public int getStackSize(long id) {
+        return map.get(id).size();
+    }
+
     public void removeEvents(long id) {
         var stack = map.get(id);
         stack.clear();
