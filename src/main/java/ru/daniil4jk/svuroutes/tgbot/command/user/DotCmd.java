@@ -11,8 +11,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
-import ru.daniil4jk.svuroutes.tgbot.command.assets.ServiceIntegratedBotCommand;
+import ru.daniil4jk.svuroutes.tgbot.command.MessageConfig;
+import ru.daniil4jk.svuroutes.tgbot.command.assets.MassiveMessageSender;
+import ru.daniil4jk.svuroutes.tgbot.command.assets.SimpleBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Dot;
+import ru.daniil4jk.svuroutes.tgbot.content.DotService;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -20,11 +23,16 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 @Slf4j
 @Component
-public class DotCmd extends ServiceIntegratedBotCommand {
+public class DotCmd extends SimpleBotCommand {
     @Autowired
-    private Map<Long, Dot> dotMap;
+    private DotService dotService;
     @Autowired
     private ScheduledThreadPoolExecutor sheduledExecutor;
+    @Autowired
+    private MessageConfig messageConfig;
+
+    //todo change static yaMapLink to Map<Route, yaMapLink>
+    //todo create YaMap object
 
     private static final String yaMapId = "3Afcaf9de0966f04189714f4a1704405ba89859518221946d6787704c954642f35";
 
@@ -53,9 +61,9 @@ public class DotCmd extends ServiceIntegratedBotCommand {
     @Override
     public void execute(AbsSender absSender, long chatId, @NotNull String[] strings) {
         try {
-            var dot = dotMap.get(Long.parseLong(strings[0]));
+            var dot = dotService.get(Long.parseLong(strings[0]));
             if (dot == null) throw new NoSuchElementException();
-            String[] textParts = getMessageConfig().isSplitDotText() ?
+            String[] textParts = messageConfig.isSplitDotText() ?
                     splitText(getText(dot)) : nonSplitText(getText(dot));
 
             if (dot.getMediaGroup().isPresent() &&

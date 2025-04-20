@@ -1,22 +1,42 @@
 package ru.daniil4jk.svuroutes.tgbot.command.user;
 
 import jakarta.persistence.PersistenceException;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
-import ru.daniil4jk.svuroutes.tgbot.command.assets.ServiceIntegratedBotCommand;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
+import ru.daniil4jk.svuroutes.tgbot.command.assets.SimpleBotCommand;
+import ru.daniil4jk.svuroutes.tgbot.command.assets.TaggedCommand;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.EventEntity;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.RequestEntity;
+import ru.daniil4jk.svuroutes.tgbot.db.service.assets.EventService;
+import ru.daniil4jk.svuroutes.tgbot.db.service.assets.RequestService;
+import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
+import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedCallbackQueryService;
+import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedMessageService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 
 @Component
-public class RegisterCmd extends ServiceIntegratedBotCommand {
+public class RegisterCmd extends TaggedCommand {
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private EventService eventService;
+    @Autowired
+    private ExpectedMessageService messageService;
+    @Autowired
+    private ExpectedCallbackQueryService queryService;
+    @Autowired
+    private RequestService requestService;
+
     public RegisterCmd() {
-        super("register", "register to event");
+        super("register", "register to event", CommandTag.REGISTER);
     }
 
     /**
@@ -27,7 +47,7 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
      * @param description       the description of this command
      */
     public RegisterCmd(String commandIdentifier, String description) {
-        super(commandIdentifier, description);
+        super(commandIdentifier, description, CommandTag.REGISTER);
     }
 
     private static final String emptyUsername = """
@@ -50,14 +70,15 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
     //TODO create admin request consumer cmd in special admin group
 
     @Override
+    @Transactional
     public void execute(AbsSender absSender, long chatId, String[] strings) {
         SimpleExecuter executer = (SimpleExecuter) absSender;
-        if (getUserService().get(chatId).getUsername().isEmpty()) {
+        if (userService.get(chatId).getUsername().isEmpty()) {
             executer.sendSimpleTextMessage(emptyUsername, chatId);
             return;
         }
 
-        EventEntity event = getEventService().get(Long.parseLong(strings[0]));
+        EventEntity event = eventService.get(Long.parseLong(strings[0]));
         if (!event.canAddRequest()) {
             executer.sendSimpleTextMessage(maxRequestsReached, chatId);
             return;
@@ -65,8 +86,8 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
 
         var request = new RequestEntity();
         request.setEvent(event);
-        request.setUser(getUserService().get(chatId));
-        getMessageService().addExpectedEvent(chatId, getFirstName(chatId, executer, request));
+        request.setUser(userService.get(chatId));
+        messageService.addExpectedEvent(chatId, getFirstName(chatId, executer, request));
     }
 
     private ExpectedEvent<Message> getFirstName(long chatId, SimpleExecuter executer,
@@ -77,7 +98,7 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
             if (m.getText().length() < 3) throw new IllegalArgumentException(
                     "Длинна имени не может быть меньше 3 символов");
             request.setFirstName(m.getText());
-            getMessageService().addExpectedEvent(chatId, getLastName(chatId, executer, request));
+            messageService.addExpectedEvent(chatId, getLastName(chatId, executer, request));
         })
         .firstNotification(message)
         .notification(message)
@@ -95,7 +116,7 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
             if (m.getText().length() < 3) throw new IllegalArgumentException(
                     "Длинна фамилии не может быть меньше 3 символов");
             request.setLastName(m.getText());
-            getMessageService().addExpectedEvent(chatId, getAge(chatId, executer, request));
+            messageService.addExpectedEvent(chatId, getAge(chatId, executer, request));
         })
         .notification(message)
         .onException(e -> SendMessage.builder()
@@ -114,7 +135,7 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
                 age = Integer.parseInt(m.getText());
                 if (age < 8 || age > 80) throw new IllegalArgumentException("Некорректный возраст");
                 request.setAge(age);
-                getMessageService().addExpectedEvent(chatId, getClass(chatId, executer, request));
+                messageService.addExpectedEvent(chatId, getClass(chatId, executer, request));
             } catch (NumberFormatException e) {
                 throw new NumberFormatException("Введите ваш возраст в виде числа");
             }
@@ -137,7 +158,7 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
                     throw new IllegalArgumentException("Такого класса не существует");
                 }
                 request.setClassNumber(classNumber);
-                getMessageService().addExpectedEvent(chatId, getSchool(chatId, executer, request));
+                messageService.addExpectedEvent(chatId, getSchool(chatId, executer, request));
             } catch (NumberFormatException e) {
                 throw new NumberFormatException("Введите ваш класс в виде числа");
             }
@@ -156,7 +177,7 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
             if (m.getText().length() < 6) throw new IllegalArgumentException(
                     "Длинна названия учебного заведения не может быть меньше 6 символов");
             request.setSchoolName(m.getText());
-            getQueryService().addExpectedEvent(chatId, getAccept(chatId, executer, request));
+            queryService.addExpectedEvent(chatId, getAccept(chatId, executer, request));
         })
         .notification(message)
         .onException(e -> SendMessage.builder()
@@ -185,7 +206,7 @@ public class RegisterCmd extends ServiceIntegratedBotCommand {
         return new ExpectedEvent<CallbackQuery>(q -> {
             if (String.valueOf(true).equals(q.getData())) {
                 try {
-                    var savedRequest = getRequestService().save(request);
+                    var savedRequest = requestService.save(request);
                     executer.sendSimpleTextMessage(
                             String.format("""
                                             Заявка на экскурсию %s зарегистрирована

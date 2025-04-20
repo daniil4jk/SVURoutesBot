@@ -1,11 +1,17 @@
 package ru.daniil4jk.svuroutes.tgbot.command.assets;
 
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.Bot;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
+import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
 
 @Setter
-public abstract class ProtectedBotCommand extends ServiceIntegratedBotCommand {
+public abstract class ProtectedBotCommand extends TaggedCommand {
+    @Autowired
+    private UserService service;
+
     private boolean onlyAdminAccess;
     /**
      * Construct a command
@@ -14,8 +20,8 @@ public abstract class ProtectedBotCommand extends ServiceIntegratedBotCommand {
      *                          enter into chat)
      * @param description       the description of this command
      */
-    public ProtectedBotCommand(String commandIdentifier, String description) {
-        super(commandIdentifier, description);
+    public ProtectedBotCommand(String commandIdentifier, String description, CommandTag tag) {
+        super(commandIdentifier, description, tag);
     }
 
     @Override
@@ -29,7 +35,7 @@ public abstract class ProtectedBotCommand extends ServiceIntegratedBotCommand {
 
     public boolean isAdmin(long chatId) {
         try {
-            return getUserService().get(chatId).isAdmin();
+            return service.get(chatId).isAdmin();
         } catch (Exception e) {
             return false;
         }

@@ -1,4 +1,4 @@
-package ru.daniil4jk.svuroutes.tgbot.content;
+package ru.daniil4jk.svuroutes.tgbot.content.init;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.daniil4jk.svuroutes.tgbot.content.ContentStorageConfig;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Dot;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Route;
 

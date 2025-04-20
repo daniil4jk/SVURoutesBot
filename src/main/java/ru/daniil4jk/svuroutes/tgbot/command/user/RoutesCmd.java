@@ -1,7 +1,7 @@
 package ru.daniil4jk.svuroutes.tgbot.command.user;
 
 import org.springframework.stereotype.Component;
-import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.StaticCommand;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.RoutesListKeyboard;
 
@@ -9,6 +9,6 @@ import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.RoutesListKeyboard;
 public class RoutesCmd extends StaticCommand {
     public RoutesCmd(RoutesListKeyboard keyboard) {
         super("routes", "list of routes",
-                CommandData.ROUTES, keyboard);
+                CommandTag.ROUTES, keyboard);
     }
 }

@@ -20,7 +20,7 @@ public class RebootCmd extends ProtectedBotCommand {
     private UserService userService;
 
     public RebootCmd() {
-        super("reboot", "reboot application");
+        super("reboot", "reboot application", null);
     }
 
     /**
@@ -31,7 +31,7 @@ public class RebootCmd extends ProtectedBotCommand {
      * @param description       the description of this command
      */
     public RebootCmd(String commandIdentifier, String description) {
-        super(commandIdentifier, description);
+        super(commandIdentifier, description, null);
     }
 
     @Override

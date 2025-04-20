@@ -8,10 +8,14 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
-import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
+import ru.daniil4jk.svuroutes.tgbot.content.CommandMessageService;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.UserEntity;
+import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
+import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedCallbackQueryService;
+import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedMessageService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.AdminKeyboard;
 
@@ -19,39 +23,35 @@ import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.AdminKeyboard;
 @Component
 public class GiveAdminCmd extends ProtectedBotCommand {
     @Autowired
+    private UserService userService;
+    @Autowired
+    private CommandMessageService commandMessageService;
+    @Autowired
+    private ExpectedCallbackQueryService callbackQueryService;
+    @Autowired
+    private ExpectedMessageService messageService;
+    @Autowired
     private AdminKeyboard adminKeyboard;
 
     public GiveAdminCmd() {
-        super("addadmin", "add administrator rules");
-        setOnlyAdminAccess(true);
-    }
-
-    /**
-     * Construct a command
-     *
-     * @param commandIdentifier the unique identifier of this command (e.g. the command string to
-     *                          enter into chat)
-     * @param description       the description of this command
-     */
-    public GiveAdminCmd(String commandIdentifier, String description) {
-        super(commandIdentifier, description);
+        super("addadmin", "add administrator rules", CommandTag.GIVE_ADMIN);
         setOnlyAdminAccess(true);
     }
 
     @Override
     public void protectedExecute(AbsSender absSender, long chatId, String[] strings) {
-        getMessageService().addExpectedEvent(chatId, ask((SimpleExecuter) absSender, chatId));
+        messageService.addExpectedEvent(chatId, ask((SimpleExecuter) absSender, chatId));
     }
 
     private ExpectedEvent<Message> ask(SimpleExecuter executer, long chatId) {
         SendMessage notification = SendMessage.builder()
-                .text(getMessageMap().get(CommandData.GIVE_ADMIN).getText())
+                .text(commandMessageService.get(CommandTag.GIVE_ADMIN).getText())
                 .chatId(chatId)
                 .build();
 
         return new ExpectedEvent<Message>(m -> {
             String username = m.getText();
-            getQueryService().addExpectedEvent(chatId, setAdmin(executer, chatId, username));
+            callbackQueryService.addExpectedEvent(chatId, setAdmin(executer, chatId, username));
         })
         .firstNotification(notification)
         .notification(notification)
@@ -72,9 +72,9 @@ public class GiveAdminCmd extends ProtectedBotCommand {
 
         return new ExpectedEvent<CallbackQuery>(q -> {
             String usernameWithoutTag = username.replace("@", "");
-            UserEntity user = getUserService().getByUsername(usernameWithoutTag);
+            UserEntity user = userService.getByUsername(usernameWithoutTag);
             user.setAdmin(true);
-            user = getUserService().save(user);
+            user = userService.save(user);
 
             executer.sendSimpleTextMessage(
                     "Пользователь: " + username + " теперь имеет права администратора!",

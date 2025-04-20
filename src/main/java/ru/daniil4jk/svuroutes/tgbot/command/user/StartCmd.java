@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.MessageEntry;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.UserEntity;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
@@ -29,14 +29,14 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 public class StartCmd extends BotCommand {
-    private static final CommandData messageName = CommandData.START;
+    private static final CommandTag messageName = CommandTag.START;
 
     @Autowired
     private DefaultKeyboardService keyboardService;
     @Autowired
     private UserService userService;
     @Autowired
-    private Map<CommandData, MessageEntry> messageMap;
+    private Map<CommandTag, MessageEntry> messageMap;
     @Autowired @Lazy
     private KeyboardStaticCmdCallHandler staticHandler;
     @Autowired @Lazy

@@ -6,18 +6,34 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
+import ru.daniil4jk.svuroutes.tgbot.bot.BotConfig;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
-import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
-import ru.daniil4jk.svuroutes.tgbot.command.assets.ServiceIntegratedBotCommand;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
+import ru.daniil4jk.svuroutes.tgbot.command.assets.TaggedCommand;
+import ru.daniil4jk.svuroutes.tgbot.content.CommandMessageService;
+import ru.daniil4jk.svuroutes.tgbot.db.service.assets.SuggestionService;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
+import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedCallbackQueryService;
+import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedMessageService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.DefaultKeyboardService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.CancelReplyKeyboard;
 
 @Component
-public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
+public class AddSuggestionCmd extends TaggedCommand {
+    private static final CancelReplyKeyboard CANCEL_KEYBOARD = new CancelReplyKeyboard("Отменить");
     @Autowired
     private DefaultKeyboardService keyboardService;
+    @Autowired
+    private CommandMessageService commandMessageService;
+    @Autowired
+    private ExpectedCallbackQueryService queryService;
+    @Autowired
+    private SuggestionService suggestionService;
+    @Autowired
+    private BotConfig botConfig;
+    @Autowired
+    private ExpectedMessageService messageService;
 
     /**
      * Construct a command
@@ -27,24 +43,24 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
      * @param description       the description of this command
      */
     public AddSuggestionCmd(String commandIdentifier, String description) {
-        super(commandIdentifier, description);
+        super(commandIdentifier, description, CommandTag.ADD_SUGGESTION);
     }
 
     public AddSuggestionCmd() {
-        super("suggestion", "add suggestion");
+        super("suggestion", "add suggestion", CommandTag.ADD_SUGGESTION);
     }
 
     private static final String CANCEL_MESSAGE = "Вы отменили отправку предложения/пожелания";
 
     @Override
     public void execute(AbsSender absSender, long chatId, String[] strings) {
-        getMessageService().addExpectedEvent(chatId, getSuggestion(chatId, absSender));
+        messageService.addExpectedEvent(chatId, getSuggestion(chatId, absSender));
     }
 
     private ExpectedEvent<Message> getSuggestion(long chatId, AbsSender absSender) {
         var notification = SendMessage.builder()
-                .text(getMessageMap().get(CommandData.ADD_SUGGESTION).getText())
-                .replyMarkup(new CancelReplyKeyboard("Отменить"))
+                .text(commandMessageService.get(CommandTag.ADD_SUGGESTION).getText())
+                .replyMarkup(CANCEL_KEYBOARD)
                 .chatId(chatId)
                 .build();
 
@@ -53,12 +69,15 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
                     "Длинна текста не может быть меньше 15 символов"
             );
 
-            getQueryService().addExpectedEvent(chatId, getAccept(chatId, absSender, m));
+            queryService.addExpectedEvent(chatId, getAccept(chatId, absSender, m));
         })
         .firstNotification(notification)
         .notification(notification)
         .onException(e -> SendMessage.builder()
-                .text(e.getLocalizedMessage()).chatId(chatId).build())
+                .text(e.getLocalizedMessage())
+                .chatId(chatId)
+                .replyMarkup(CANCEL_KEYBOARD)
+                .build())
         .removeOnException(false)
         .cancelTrigger("Отменить")
         .cancelText(CANCEL_MESSAGE);
@@ -76,7 +95,7 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
         return new ExpectedEvent<CallbackQuery>(q -> {
             if (!String.valueOf(true).equals(q.getData())) return;
 
-            var acceptedSuggestion = getSuggestionService().createNew(
+            var acceptedSuggestion = suggestionService.createNew(
                     suggestionMessage.getChatId(),
                     suggestionMessage.getText()
             );
@@ -96,7 +115,7 @@ public class AddSuggestionCmd extends ServiceIntegratedBotCommand {
                     """, acceptedSuggestion.getId(),
                             acceptedSuggestion.getUser().getUsernameAsOptional().orElse("не указан"),
                             acceptedSuggestion.getText()),
-                    getBotConfig().getSuggestionChatId()
+                    botConfig.getSuggestionChatId()
             );
         })
         .firstNotification(notification)

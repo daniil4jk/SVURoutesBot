@@ -2,31 +2,30 @@ package ru.daniil4jk.svuroutes.tgbot.command.admin;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.aspectj.weaver.ast.Call;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
-import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
-import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.StaticCommand;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Dot;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Route;
+import ru.daniil4jk.svuroutes.tgbot.content.DotService;
+import ru.daniil4jk.svuroutes.tgbot.content.RouteService;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.EventEntity;
+import ru.daniil4jk.svuroutes.tgbot.db.service.assets.EventService;
 import ru.daniil4jk.svuroutes.tgbot.expected.DefaultExpectedEvent;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
+import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedCallbackQueryService;
+import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedMessageService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.KeyboardConfig;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.DotsListKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.EventsKeyboard;
-import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.RoutesListKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.assets.TListKeyboard;
 
 import java.util.*;
@@ -41,21 +40,33 @@ public class CreateEventCmd extends StaticCommand {
     private EventsKeyboard eventsKeyboard;
     @Autowired
     private Map<Route, DotsListKeyboardWithoutCmdIndex> routeDotsListKeyboard;
+    @Autowired
+    private ExpectedCallbackQueryService queryService;
+    @Autowired
+    private ExpectedMessageService messageService;
+    @Autowired
+    private RouteService routeService;
+    @Autowired
+    private EventService eventService;
+    @Autowired
+    private DotService dotService;
 
     public CreateEventCmd() {
         super("createevent", "create new event by route id",
-                CommandData.ADMIN_CREATE_EVENT, null);
+                CommandTag.ADMIN_CREATE_EVENT, null);
         setOnlyAdminAccess(true);
     }
 
     private static final String CANCEL_TRIGGER = "Отменить";
     private static final String CANCEL_MESSAGE = "Создание ивента успешно отменено";
 
+    //todo add age
+
     @Override
     public void protectedExecute(AbsSender absSender, long chatId, String[] strings) {
         EventEntity event = new EventEntity();
         Calendar c = GregorianCalendar.getInstance();
-        getQueryService().addExpectedEvent(chatId,
+        queryService.addExpectedEvent(chatId,
             getRoute(event, chatId,
                 () -> getDot(event, chatId,
                     () -> getMonth(c, chatId,
@@ -80,10 +91,10 @@ public class CreateEventCmd extends StaticCommand {
                     try {
                         event.setRouteId(
                                 Objects.requireNonNull(
-                                        getRouteMap().get(Long.parseLong(q.getData()))
+                                        routeService.get(Long.parseLong(q.getData()))
                                 ).getId()
                         );
-                        getQueryService().addExpectedEvent(chatId, next.get());
+                        queryService.addExpectedEvent(chatId, next.get());
                     } catch (NumberFormatException | NullPointerException e) {
                         throw new NullPointerException("Выбран не существующий маршрут");
                     }
@@ -98,7 +109,7 @@ public class CreateEventCmd extends StaticCommand {
                 .replyMarkup(
                         Objects.requireNonNull(
                             routeDotsListKeyboard.get(
-                                    getRouteMap().get(
+                                    routeService.get(
                                             event.getRouteId()
                                     )
                             )
@@ -112,10 +123,10 @@ public class CreateEventCmd extends StaticCommand {
                     try {
                         event.setDotId(
                                 Objects.requireNonNull(
-                                        getDotMap().get(Long.parseLong(q.getData()))
+                                        dotService.get(Long.parseLong(q.getData()))
                                 ).getId()
                         );
-                        getMessageService().addExpectedEvent(chatId, next.get());
+                        messageService.addExpectedEvent(chatId, next.get());
                     } catch (NumberFormatException | NullPointerException e) {
                         throw new NullPointerException("Выбрана не существующая точка");
                     }
@@ -138,7 +149,7 @@ public class CreateEventCmd extends StaticCommand {
                     if (monthNumber == -1) throw new IllegalArgumentException(
                             "Введите название месяца, например \"октябрь\"");
                     c.set(Calendar.MONTH, monthNumber);
-                    getMessageService().addExpectedEvent(chatId, next.get());
+                    messageService.addExpectedEvent(chatId, next.get());
                 },
                 CANCEL_TRIGGER,
                 CANCEL_MESSAGE,
@@ -173,7 +184,7 @@ public class CreateEventCmd extends StaticCommand {
         String notification = "Введите день, в который будет проходить событие";
         return new GetCalendarNumberEvent(notification, c, chatId,
                 Calendar.DAY_OF_MONTH, 31,
-                () -> getMessageService().addExpectedEvent(chatId, next.get()));
+                () -> messageService.addExpectedEvent(chatId, next.get()));
     }
 
     private ExpectedEvent<Message> getHour(Calendar c, long chatId,
@@ -181,7 +192,7 @@ public class CreateEventCmd extends StaticCommand {
         String notification = "Введите, в котором часу будет проходить событие, в 24-часовом формате";
         return new GetCalendarNumberEvent(notification, c, chatId,
                 Calendar.HOUR_OF_DAY, 24,
-                () -> getMessageService().addExpectedEvent(chatId, next.get()));
+                () -> messageService.addExpectedEvent(chatId, next.get()));
     }
 
     private ExpectedEvent<Message> getMinute(Calendar c, long chatId,
@@ -189,7 +200,7 @@ public class CreateEventCmd extends StaticCommand {
         String notification = "Введите, на какой минуте часа событие начнется";
         return new GetCalendarNumberEvent(notification, c, chatId,
                 Calendar.MINUTE, 60,
-                () -> getMessageService().addExpectedEvent(chatId, next.get()));
+                () -> messageService.addExpectedEvent(chatId, next.get()));
     }
 
     private ExpectedEvent<Message> getGuideName(EventEntity event, long chatId,
@@ -198,7 +209,7 @@ public class CreateEventCmd extends StaticCommand {
         return new DefaultExpectedEvent<>(notification,
                 m -> {
                     event.setGuideName(m.getText());
-                    getMessageService().addExpectedEvent(chatId, next.get());
+                    messageService.addExpectedEvent(chatId, next.get());
                 },
                 CANCEL_TRIGGER,
                 CANCEL_MESSAGE,
@@ -216,7 +227,7 @@ public class CreateEventCmd extends StaticCommand {
                         throw new NumberFormatException("Введено не число, либо по каким-то причинам мы " +
                                 "не можем прочитать это число. Проверьте чтобы между цифрами не было пробелов");
                     }
-                    getQueryService().addExpectedEvent(chatId, next.get());
+                    queryService.addExpectedEvent(chatId, next.get());
                 },
                 CANCEL_TRIGGER,
                 CANCEL_MESSAGE,
@@ -233,8 +244,8 @@ public class CreateEventCmd extends StaticCommand {
                                                       Calendar c, long chatId) {
          event.setDate(c.getTime());
          event.setName(
-                 getRouteMap().get(event.getRouteId()).getName() + "-" +
-                         getDotMap().get(event.getDotId()).getName()
+                 routeService.get(event.getRouteId()).getName() + "-" +
+                         dotService.get(event.getDotId()).getName()
          );
 
          SendMessage notification = SendMessage.builder()
@@ -250,8 +261,8 @@ public class CreateEventCmd extends StaticCommand {
                          monthNames2[c.get(Calendar.MONTH)],
                          c.get(Calendar.HOUR_OF_DAY),
                          c.get(Calendar.MINUTE),
-                         getRouteMap().get(event.getRouteId()).getName(),
-                         getDotMap().get(event.getDotId()).getName(),
+                         routeService.get(event.getRouteId()).getName(),
+                         dotService.get(event.getDotId()).getName(),
                          event.getGuideName(),
                          event.getMaxUsers()
                          )
@@ -265,7 +276,7 @@ public class CreateEventCmd extends StaticCommand {
                  throw new IllegalArgumentException("Вы создаете событие. Выберите \"Все верно\" или \"отменить\"");
              }
 
-             EventEntity newEntity = getEventService().save(event);
+             EventEntity newEntity = eventService.save(event);
              executer.sendSimpleTextMessage(
                      "Событие успешно добавлено", chatId);
              eventsKeyboard.add(newEntity);

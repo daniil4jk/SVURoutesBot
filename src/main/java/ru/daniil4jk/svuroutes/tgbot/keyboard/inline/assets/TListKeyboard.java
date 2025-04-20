@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.KeyboardConfig;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.assets.KeyboardCmdCallHandler;
 
@@ -28,7 +28,7 @@ public abstract class TListKeyboard<T> extends InlineKeyboardMarkup {
         fill();
     }
 
-    public TListKeyboard(Collection<T> ts, CommandData data, KeyboardConfig config) {
+    public TListKeyboard(Collection<T> ts, CommandTag data, KeyboardConfig config) {
         this.config = config;
         this.ts = ts;
         commandId = data.getId();
@@ -77,6 +77,11 @@ public abstract class TListKeyboard<T> extends InlineKeyboardMarkup {
 
     public void add(T t) {
         ts.add(t);
+        fill();
+    }
+
+    public void remove(T t) {
+        ts.remove(t);
         fill();
     }
 

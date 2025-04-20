@@ -3,6 +3,7 @@ package ru.daniil4jk.svuroutes.tgbot.expected.services.assets;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.bot.Bot;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
@@ -15,7 +16,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Slf4j
 public abstract class ExpectedSomethingService<T> {
     private final Map<Long, Deque<ExpectedEvent<T>>> map = new ConcurrentHashMap<>();
-    @Autowired
+    @Autowired @Lazy
     private Bot bot;
 
     public void addExpectedEvent(long id, @NotNull ExpectedEvent<T> event) {

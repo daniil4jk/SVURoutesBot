@@ -1,5 +1,6 @@
 package ru.daniil4jk.svuroutes.tgbot.command.admin;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -9,6 +10,7 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
+import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedMessageService;
 
 import java.util.Comparator;
 import java.util.List;
@@ -19,8 +21,12 @@ public class GetFileRef extends ProtectedBotCommand {
             new IllegalArgumentException("В сообщении отсутствует файл, или " +
                     "данный тип файлов не поддерживается");
 
+    @Autowired
+    private ExpectedMessageService expectedMessageService;
+
+    @Autowired
     public GetFileRef() {
-        super("getfileref", "wait file and returning telegram InputFile id");
+        super("getfileref", "wait file and returning telegram InputFile id", null);
     }
 
     /**
@@ -31,7 +37,7 @@ public class GetFileRef extends ProtectedBotCommand {
      * @param description       the description of this command
      */
     public GetFileRef(String commandIdentifier, String description) {
-        super(commandIdentifier, description);
+        super(commandIdentifier, description, null);
     }
 
     @Override
@@ -39,7 +45,7 @@ public class GetFileRef extends ProtectedBotCommand {
         SimpleExecuter simpleExecuter = ((SimpleExecuter) absSender);
         var message = SendMessage.builder().text("Вышлите файл, для которого хотите получить id")
                 .chatId(chatId).build();
-        getMessageService().addExpectedEvent(chatId, new ExpectedEvent<Message>(
+        expectedMessageService.addExpectedEvent(chatId, new ExpectedEvent<Message>(
                 m -> {
                     if (m.hasPhoto()) processPhoto(simpleExecuter, chatId, m.getPhoto());
                     else if (m.hasVideo()) processVideo(simpleExecuter, chatId, m.getVideo());

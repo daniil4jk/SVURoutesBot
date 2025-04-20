@@ -4,7 +4,7 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.daniil4jk.svuroutes.tgbot.bot.Bot;
-import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandService;
 import ru.daniil4jk.svuroutes.tgbot.command.admin.RemoveEventCmd;
 import ru.daniil4jk.svuroutes.tgbot.command.user.*;
@@ -20,7 +20,7 @@ public class KeyboardDynamicCmdCallHandler extends AbstractKeyboardCmdCallHandle
 
     public boolean canAccept(String text, boolean onlyText) {
         try {
-            CommandData prefix = getPrefix(text);
+            CommandTag prefix = getPrefix(text);
             String prefixText = (!startsWithNumber(text) || onlyText) ?
                     prefix.toString() : String.valueOf(prefix.getId());
             return text.length() > prefixText.length();
@@ -38,7 +38,7 @@ public class KeyboardDynamicCmdCallHandler extends AbstractKeyboardCmdCallHandle
 
     @Override
     public void accept(String text, long chatId, boolean onlyText) {
-        CommandData prefix = getPrefix(text);
+        CommandTag prefix = getPrefix(text);
         String prefixText = (!startsWithNumber(text) || onlyText) ?
                 prefix.toString() : String.valueOf(prefix.getId());
         String argsInString = text.substring(prefixText.length()).trim();
@@ -48,27 +48,19 @@ public class KeyboardDynamicCmdCallHandler extends AbstractKeyboardCmdCallHandle
         accept(prefix, chatId, argsInString.split("_"));
     }
 
-    public void accept(CommandData data, long chatId, String[] args) {
-        switch (data) {
-            case DOT -> commands.getCommand(DotCmd.class).execute(bot, chatId, args);
-            case ROUTE -> commands.getCommand(RouteCmd.class).execute(bot, chatId, args);
-            case REGISTER -> commands.getCommand(RegisterCmd.class).execute(bot, chatId, args);
-            case EVENT -> commands.getCommand(EventCmd.class).execute(bot, chatId, args);
-            case ADMIN_REMOVE_EVENT -> commands.getCommand(RemoveEventCmd.class).execute(bot, chatId, args);
-            case REQUEST -> commands.getCommand(RequestCmd.class).execute(bot, chatId, args);
-            default -> bot.weDontKnowWhatThisIs(chatId);
-        }
+    public void accept(CommandTag tag, long chatId, String[] args) {
+        commands.getCommandByTag(tag).execute(bot, chatId, args);
     }
 
-    private CommandData getPrefix(String text) {
-        for (int i = CommandData.values().length - 1; i >= 0; i--) {
-            CommandData prefix = CommandData.values()[i];
+    private CommandTag getPrefix(String text) {
+        for (int i = CommandTag.values().length - 1; i >= 0; i--) {
+            CommandTag prefix = CommandTag.values()[i];
             String idInStr = String.valueOf(prefix.getId());
             if (text.startsWith(idInStr)) {
                 return prefix;
             }
         }
-        for (CommandData prefix : CommandData.values()) {
+        for (CommandTag prefix : CommandTag.values()) {
             if (text.startsWith(prefix.toString())) {
                 return prefix;
             }

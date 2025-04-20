@@ -19,6 +19,8 @@ public abstract class UserExceptionReporter {
     private boolean userLogging = false;
 
     public void reportExceptionToUsers(Update update, Throwable e) {
+        log.debug(e.getLocalizedMessage(), e);
+
         if (userLogging) {
             Long chatId = null;
             if (update.hasMessage()) chatId = update.getMessage().getChatId();

@@ -1,4 +1,4 @@
-package ru.daniil4jk.svuroutes.tgbot.content;
+package ru.daniil4jk.svuroutes.tgbot.content.init;
 
 import org.springframework.stereotype.Component;
 

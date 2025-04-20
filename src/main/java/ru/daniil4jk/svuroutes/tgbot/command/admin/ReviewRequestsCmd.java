@@ -7,10 +7,13 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.BotConfig;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
-import ru.daniil4jk.svuroutes.tgbot.command.CommandData;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.ProtectedBotCommand;
+import ru.daniil4jk.svuroutes.tgbot.content.CommandMessageService;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.RequestEntity;
+import ru.daniil4jk.svuroutes.tgbot.db.service.assets.RequestService;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
+import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedCallbackQueryService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 
 import java.util.Optional;
@@ -23,7 +26,7 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
     private BotConfig config;
 
     public ReviewRequestsCmd() {
-        super("review", "review requests");
+        super("review", "review requests", CommandTag.ADMIN_REVIEW_REQUESTS);
     }
 
     /**
@@ -33,18 +36,27 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
      *                          enter into chat)
      * @param description       the description of this command
      */
-    public ReviewRequestsCmd(String commandIdentifier, String description) {
-        super(commandIdentifier, description);
+    public ReviewRequestsCmd(String commandIdentifier, String description, CommandTag tag) {
+        super(commandIdentifier, description, tag);
     }
 
     private static final String CANCEL_TRIGGER = "Закончить просмотр заявок";
     private static final String CANCEL_TEXT = "Просмотр заявок окончен";
 
+    @Autowired
+    private CommandMessageService commandMessageService;
+
+    @Autowired
+    private RequestService requestService;
+
+    @Autowired
+    private ExpectedCallbackQueryService queryService;
+
     @Override
     protected void protectedExecute(AbsSender absSender, long chatId, String[] strings) {
         var executer = ((SimpleExecuter) absSender);
         executer.sendSimpleTextMessage(
-                getMessageMap().get(CommandData.ADMIN_REQUESTS).getText(), chatId);
+                commandMessageService.get(CommandTag.ADMIN_REVIEW_REQUESTS).getText(), chatId);
         if (getNextRequest(null).isEmpty()) {
             ((SimpleExecuter) absSender).sendSimpleTextMessage(
                     "Новых заявок пока нет", chatId);
@@ -56,10 +68,10 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
     private ExpectedEvent<CallbackQuery> getRequestRepresentation(
             SimpleExecuter executer, AtomicLong chatId, RequestEntity request) {
 
-        getRequestService().update(request, r -> r.setStatus(RequestEntity.Status.IN_PROGRESS));
+        requestService.update(request, r -> r.setStatus(RequestEntity.Status.IN_PROGRESS));
 
         SendMessage notification = SendMessage.builder()
-                .text(getMessageMap().get(CommandData.ADMIN_REQUEST).getText() + getRequestString(request))
+                .text(commandMessageService.get(CommandTag.ADMIN_REQUEST).getText() + getRequestString(request))
                 .replyMarkup(new BooleanInlineKeyboard("Принять", "Отказать", CANCEL_TRIGGER))
                 .chatId(chatId.get())
                 .build();
@@ -77,7 +89,7 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
                     } else {
                         executer.sendSimpleTextMessage(
                                 "Просмотр заявок остановлен", chatId.get());
-                        getRequestService().update(request, r ->
+                        requestService.update(request, r ->
                             r.setStatus(RequestEntity.Status.WAITING));
                     }
                 }
@@ -123,7 +135,7 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
     private void showNextRequest(SimpleExecuter executer, AtomicLong chatId, Long lastRequestId) {
         var requestOptional = getNextRequest(lastRequestId);
         if (requestOptional.isPresent()) {
-            getQueryService().addExpectedEvent(chatId.get(),
+            queryService.addExpectedEvent(chatId.get(),
                     getRequestRepresentation(executer, chatId, requestOptional.get()));
         } else {
             executer.sendSimpleTextMessage("Заявки кончились", chatId.get());
@@ -131,13 +143,13 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
     }
 
     private void setAccepted(RequestEntity request, boolean accept) {
-        getRequestService().update(request,
+        requestService.update(request,
                 r -> r.setStatus(accept ?
                         RequestEntity.Status.ACCEPTED : RequestEntity.Status.REJECTED));
     }
 
     private void notifyUser(SimpleExecuter executer, RequestEntity request) {
-        request = getRequestService().get(request);
+        request = requestService.get(request);
         executer.sendSimpleTextMessage(
                 "Ваша заявка под номером " + request.getId() +
                         (RequestEntity.Status.ACCEPTED.equals(request.getStatus()) ?
@@ -147,13 +159,13 @@ public class ReviewRequestsCmd extends ProtectedBotCommand {
     }
 
     private void postRequestReview(SimpleExecuter executer, RequestEntity request) {
-        request = getRequestService().get(request);
+        request = requestService.get(request);
         executer.sendSimpleTextMessage("Заявка ПРИЯТА\n" +
                 getRequestString(request),
                 config.getReviewChatId());
     }
 
     private Optional<RequestEntity> getNextRequest(Long currentId) {
-        return getRequestService().getNext(currentId);
+        return requestService.getNext(currentId);
     }
 }

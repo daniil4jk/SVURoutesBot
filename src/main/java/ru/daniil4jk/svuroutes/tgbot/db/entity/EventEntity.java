@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.beans.InvalidPropertyException;
 
 import java.util.Date;
 import java.util.List;
@@ -25,7 +26,7 @@ public class EventEntity {
     @Column(name = "name", nullable = false)
     private String name;
     @Column(name = "request_id", nullable = false)
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<RequestEntity> requestEntities;
     @Column(name = "max_users")
@@ -42,7 +43,8 @@ public class EventEntity {
     @PrePersist
     @PreUpdate
     protected void isRequestsInRange() {
-        if (countRequests() > maxUsers) throw new PersistenceException("users too many");
+        if (countRequests() > maxUsers) throw new InvalidPropertyException(EventEntity.class,
+                "requestEntities","Невалидное количество записей");;
     }
 
     public boolean canAddRequest() {
@@ -50,8 +52,9 @@ public class EventEntity {
     }
 
     private int countRequests() {
+        if (getRequestEntities() == null) return 0;
         int count = 0;
-        for (var e : requestEntities) {
+        for (var e : getRequestEntities()) {
             if (!RequestEntity.Status.REJECTED.equals(e.getStatus())) {
                 count++;
             }
