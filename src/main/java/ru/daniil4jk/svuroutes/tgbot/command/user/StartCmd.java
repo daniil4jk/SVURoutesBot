@@ -1,5 +1,6 @@
 package ru.daniil4jk.svuroutes.tgbot.command.user;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -14,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
+import ru.daniil4jk.svuroutes.tgbot.command.assets.TaggedCommand;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.MessageEntry;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.UserEntity;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
@@ -28,8 +30,9 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class StartCmd extends BotCommand {
-    private static final CommandTag messageName = CommandTag.START;
+public class StartCmd extends BotCommand implements TaggedCommand {
+    @Getter
+    private final CommandTag tag = CommandTag.START;
 
     @Autowired
     private DefaultKeyboardService keyboardService;
@@ -86,7 +89,7 @@ public class StartCmd extends BotCommand {
 
     //copied from staticCommand
     public void executeWithKeyboard(AbsSender absSender, long chatId, ReplyKeyboard keyboard) {
-        var message = messageMap.get(messageName);
+        var message = messageMap.get(tag);
         try {
             if (message.getImage().isPresent() && message.getVideo().isPresent()) {
                 absSender.execute(SendVideo.builder()

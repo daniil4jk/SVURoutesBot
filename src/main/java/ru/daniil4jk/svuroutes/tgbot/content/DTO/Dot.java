@@ -1,5 +1,6 @@
 package ru.daniil4jk.svuroutes.tgbot.content.DTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
@@ -20,6 +21,8 @@ public class Dot implements HasAttributes {
     private InputFile image;
     private InputFile video;
     private List<InputMedia> mediaGroup;
+    @JsonIgnore
+    private Route route;
     private GPS gps;
 
     public Optional<InputFile> getImage() {

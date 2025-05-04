@@ -4,10 +4,8 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.daniil4jk.svuroutes.tgbot.bot.Bot;
-import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandService;
-import ru.daniil4jk.svuroutes.tgbot.command.admin.RemoveEventCmd;
-import ru.daniil4jk.svuroutes.tgbot.command.user.*;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.processing.assets.AbstractKeyboardCmdCallHandler;
 
 @Setter
@@ -45,11 +43,7 @@ public class KeyboardDynamicCmdCallHandler extends AbstractKeyboardCmdCallHandle
         if (argsInString.startsWith("_")) {
             argsInString = argsInString.substring(1);
         }
-        accept(prefix, chatId, argsInString.split("_"));
-    }
-
-    public void accept(CommandTag tag, long chatId, String[] args) {
-        commands.getCommandByTag(tag).execute(bot, chatId, args);
+        execute(prefix, chatId, argsInString.split("_"));
     }
 
     private CommandTag getPrefix(String text) {

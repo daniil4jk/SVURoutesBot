@@ -1,6 +1,5 @@
 package ru.daniil4jk.svuroutes.tgbot.command.admin;
 
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

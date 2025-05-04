@@ -8,7 +8,7 @@ import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
 
 @Setter
-public abstract class ProtectedBotCommand extends TaggedCommand {
+public abstract class ProtectedBotCommand extends SimpleBotCommand {
     @Autowired
     private UserService service;
 

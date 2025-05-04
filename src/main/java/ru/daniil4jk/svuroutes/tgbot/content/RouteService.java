@@ -1,9 +1,7 @@
 package ru.daniil4jk.svuroutes.tgbot.content;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Route;
 
 import java.util.Map;

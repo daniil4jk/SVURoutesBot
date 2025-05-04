@@ -3,23 +3,15 @@ package ru.daniil4jk.svuroutes.tgbot.command.assets;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.bots.AbsSender;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.content.CommandMessageService;
-import ru.daniil4jk.svuroutes.tgbot.content.DTO.MessageEntry;
-
-import java.util.Map;
 
 @Slf4j
 public class StaticCommand extends ProtectedBotCommand {
     private final ReplyKeyboard keyboard;
-    private MassiveMessageSender sender;
+    private InteractiveMessageSender sender;
     @Autowired
     private CommandMessageService messageService;
 
@@ -39,7 +31,7 @@ public class StaticCommand extends ProtectedBotCommand {
 
     @PostConstruct
     private void postConstruct() {
-        sender = new MassiveMessageSender(messageService.get(getTag()), keyboard);
+        sender = new InteractiveMessageSender(messageService.get(getTag()), keyboard);
     }
 
     @Override

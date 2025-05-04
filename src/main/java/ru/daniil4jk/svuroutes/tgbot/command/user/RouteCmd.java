@@ -12,7 +12,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.SimpleBotCommand;
-import ru.daniil4jk.svuroutes.tgbot.command.assets.TaggedCommand;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Route;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.DotsListKeyboard;
 
@@ -21,7 +20,7 @@ import java.util.NoSuchElementException;
 
 @Slf4j
 @Component
-public class RouteCmd extends TaggedCommand {
+public class RouteCmd extends SimpleBotCommand {
     @Autowired
     private Map<Long, Route> tMap;
     @Autowired

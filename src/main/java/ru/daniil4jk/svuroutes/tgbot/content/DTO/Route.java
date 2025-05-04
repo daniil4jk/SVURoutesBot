@@ -23,6 +23,7 @@ public class Route implements HasAttributes {
     private InputFile image;
     private InputFile video;
     private List<InputMedia> mediaGroup;
+    private String yaMapLinkId;
     @JsonIgnore
     private List<Dot> dots;
     private List<Long> dotNumbers;

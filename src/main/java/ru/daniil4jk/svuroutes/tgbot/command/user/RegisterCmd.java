@@ -11,7 +11,6 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.SimpleBotCommand;
-import ru.daniil4jk.svuroutes.tgbot.command.assets.TaggedCommand;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.EventEntity;
 import ru.daniil4jk.svuroutes.tgbot.db.entity.RequestEntity;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.EventService;
@@ -23,7 +22,7 @@ import ru.daniil4jk.svuroutes.tgbot.expected.services.ExpectedMessageService;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 
 @Component
-public class RegisterCmd extends TaggedCommand {
+public class RegisterCmd extends SimpleBotCommand {
     @Autowired
     private UserService userService;
     @Autowired

@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.TaggedCommand;
-import ru.daniil4jk.svuroutes.tgbot.command.user.StartCmd;
 
 import java.util.Collection;
 import java.util.EnumMap;

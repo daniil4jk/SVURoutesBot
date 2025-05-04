@@ -59,6 +59,7 @@ public class RoutesFileScanner {
             if (route.getDots() == null) route.setDots(new ArrayList<>());
             for (Long dotNumber : route.getDotNumbers()) {
                 route.getDots().add(dotMap.get(dotNumber));
+                dotMap.get(dotNumber).setRoute(route);
             }
         }
 

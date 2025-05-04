@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.daniil4jk.svuroutes.tgbot.bot.BotConfig;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
-import ru.daniil4jk.svuroutes.tgbot.command.assets.TaggedCommand;
+import ru.daniil4jk.svuroutes.tgbot.command.assets.SimpleBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.content.CommandMessageService;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.SuggestionService;
 import ru.daniil4jk.svuroutes.tgbot.expected.ExpectedEvent;
@@ -20,7 +20,7 @@ import ru.daniil4jk.svuroutes.tgbot.keyboard.inline.BooleanInlineKeyboard;
 import ru.daniil4jk.svuroutes.tgbot.keyboard.reply.CancelReplyKeyboard;
 
 @Component
-public class AddSuggestionCmd extends TaggedCommand {
+public class AddSuggestionCmd extends SimpleBotCommand {
     private static final CancelReplyKeyboard CANCEL_KEYBOARD = new CancelReplyKeyboard("Отменить");
     @Autowired
     private DefaultKeyboardService keyboardService;

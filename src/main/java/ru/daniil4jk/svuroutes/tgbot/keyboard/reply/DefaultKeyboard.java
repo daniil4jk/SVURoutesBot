@@ -10,6 +10,7 @@ import ru.daniil4jk.svuroutes.tgbot.command.MessageConfig;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("FieldCanBeLocal")
 @Component
 public class DefaultKeyboard extends ReplyKeyboardMarkup {
     private final KeyboardButton events = new KeyboardButton(String.valueOf(CommandTag.EVENTS));

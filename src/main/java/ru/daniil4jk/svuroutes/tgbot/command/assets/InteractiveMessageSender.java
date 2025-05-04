@@ -11,16 +11,16 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.MessageEntry;
 
 @Slf4j
-public class MassiveMessageSender {
+public class InteractiveMessageSender {
     private final MessageEntry message;
     private final ReplyKeyboard defaultKeyboard;
 
-    public MassiveMessageSender(MessageEntry message, ReplyKeyboard defaultKeyboard) {
+    public InteractiveMessageSender(MessageEntry message, ReplyKeyboard defaultKeyboard) {
         this.message = message;
         this.defaultKeyboard = defaultKeyboard;
     }
 
-    public MassiveMessageSender(MessageEntry message) {
+    public InteractiveMessageSender(MessageEntry message) {
         this.message = message;
         this.defaultKeyboard = null;
     }

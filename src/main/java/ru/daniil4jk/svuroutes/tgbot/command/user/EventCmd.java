@@ -9,7 +9,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
 import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.SimpleBotCommand;
-import ru.daniil4jk.svuroutes.tgbot.command.assets.TaggedCommand;
 import ru.daniil4jk.svuroutes.tgbot.content.CommandMessageService;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.EventService;
 import ru.daniil4jk.svuroutes.tgbot.db.service.assets.UserService;
@@ -19,7 +18,7 @@ import java.util.NoSuchElementException;
 
 @Slf4j
 @Component
-public class EventCmd extends TaggedCommand {
+public class EventCmd extends SimpleBotCommand {
     @Autowired
     private CommandMessageService commandMessageService;
     @Autowired

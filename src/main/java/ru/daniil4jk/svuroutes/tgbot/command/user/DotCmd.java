@@ -11,13 +11,13 @@ import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.daniil4jk.svuroutes.tgbot.bot.simpleexecuter.SimpleExecuter;
+import ru.daniil4jk.svuroutes.tgbot.command.CommandTag;
 import ru.daniil4jk.svuroutes.tgbot.command.MessageConfig;
-import ru.daniil4jk.svuroutes.tgbot.command.assets.MassiveMessageSender;
 import ru.daniil4jk.svuroutes.tgbot.command.assets.SimpleBotCommand;
 import ru.daniil4jk.svuroutes.tgbot.content.DTO.Dot;
 import ru.daniil4jk.svuroutes.tgbot.content.DotService;
+import ru.daniil4jk.svuroutes.tgbot.content.ya_map.YaMapLinkService;
 
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -30,21 +30,11 @@ public class DotCmd extends SimpleBotCommand {
     private ScheduledThreadPoolExecutor sheduledExecutor;
     @Autowired
     private MessageConfig messageConfig;
-
-    //todo change static yaMapLink to Map<Route, yaMapLink>
-    //todo create YaMap object
-
-    private static final String yaMapId = "3Afcaf9de0966f04189714f4a1704405ba89859518221946d6787704c954642f35";
-
-    private static final String[] linkForFormat = new String[]
-            {
-                    "<a href=\"" + "https://yandex.ru/maps/20672/severouralsk/?l=sat%2Cskl&ll=",
-                    "%2C",
-                    "&mode=usermaps&source=constructorLink&um=constructor%" + yaMapId + "&z=19" + "\">клик</a>"
-            };
+    @Autowired
+    private YaMapLinkService yaMapLinkService;
 
     public DotCmd() {
-        super("dot", "description about dot");
+        super("dot", "description about dot", CommandTag.DOT);
     }
 
     /**
@@ -55,7 +45,7 @@ public class DotCmd extends SimpleBotCommand {
      * @param description       the description of this command
      */
     public DotCmd(String commandIdentifier, String description) {
-        super(commandIdentifier, description);
+        super(commandIdentifier, description, CommandTag.DOT);
     }
 
     @Override
@@ -126,8 +116,8 @@ public class DotCmd extends SimpleBotCommand {
         return (dot.getName() +
                 (!(dot.getAbout() == null || dot.getAbout().isEmpty()) ? "\n\n" + dot.getAbout() : "")
                 + (dot.getGps().isPresent() ? "\n\nПосмотреть на карте: " +
-                linkForFormat[0] + dot.getGps().get().getLongitude() + linkForFormat[1] +
-                dot.getGps().get().getLatitude() + linkForFormat[2] : ""));//.split("\n");
+                yaMapLinkService.get(dot.getRoute().getYaMapLinkId()).getLinkForPlace(dot.getGps().get())
+                        : null));
     }
 
     private String[] splitText(String text) {

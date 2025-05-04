@@ -157,6 +157,7 @@ public class CreateEventCmd extends StaticCommand {
     }
 
     private static class GetCalendarNumberEvent extends DefaultExpectedEvent<Message>{
+        @SuppressWarnings("MagicConstant")
         public GetCalendarNumberEvent(String notification, Calendar c, long chatId,
                                       int calendarConst, int maxValue, Runnable addNext) {
             super(notification,
